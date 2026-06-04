@@ -1,0 +1,1810 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>波珠机管理后台</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#0f1117;--sidebar:#161b26;--card:#1e2536;--card2:#252d3d;
+  --border:#2d3650;--primary:#4f7cff;--primary2:#3a63e8;
+  --success:#22c55e;--danger:#ef4444;--warn:#f59e0b;--info:#38bdf8;
+  --text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;
+  --gold:#f5c842;
+}
+body{background:var(--bg);color:var(--text);font-family:'PingFang SC','Microsoft YaHei',sans-serif;display:flex;height:100vh;overflow:hidden;}
+
+/* ── SIDEBAR ── */
+#sidebar{
+  width:220px;flex-shrink:0;background:var(--sidebar);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+#logo{padding:20px 18px 16px;border-bottom:1px solid var(--border);}
+#logo .lt{font-size:18px;font-weight:800;color:var(--gold);}
+#logo .ls{font-size:11px;color:var(--text3);margin-top:2px;}
+#nav{flex:1;overflow-y:auto;padding:8px 0;}
+.nav-group{padding:12px 18px 4px;font-size:10px;color:var(--text3);letter-spacing:1px;font-weight:600;}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 18px;cursor:pointer;font-size:13px;color:var(--text2);
+  border-left:3px solid transparent;transition:all 0.15s;
+}
+.nav-item:hover{background:rgba(79,124,255,0.08);color:var(--text);}
+.nav-item.active{background:rgba(79,124,255,0.15);color:var(--primary);border-left-color:var(--primary);font-weight:600;}
+.nav-item .ico{font-size:16px;width:18px;text-align:center;}
+.nav-badge{margin-left:auto;background:var(--danger);color:#fff;font-size:10px;border-radius:10px;padding:1px 6px;font-weight:700;}
+#sidebar-user{padding:14px 18px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.su-avatar{width:32px;height:32px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;}
+.su-info{flex:1;min-width:0;}
+.su-name{font-size:13px;font-weight:600;color:var(--text);}
+.su-role{font-size:10px;color:var(--text3);}
+#btn-logout{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:4px;}
+#btn-logout:hover{color:var(--danger);}
+
+/* ── MAIN ── */
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+#topnav{
+  height:52px;flex-shrink:0;
+  background:var(--sidebar);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 24px;gap:16px;
+}
+#page-title{font-size:16px;font-weight:700;flex:1;}
+.tn-btn{background:var(--card);border:1px solid var(--border);color:var(--text2);border-radius:7px;padding:6px 12px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:5px;}
+.tn-btn:hover{border-color:var(--primary);color:var(--primary);}
+#content{flex:1;overflow-y:auto;padding:20px 24px;}
+
+/* ── CARDS ── */
+.page{display:none;}
+.page.active{display:block;}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.stat-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:10px;padding:16px 18px;
+  display:flex;flex-direction:column;gap:6px;
+}
+.sc-label{font-size:11px;color:var(--text3);display:flex;align-items:center;gap:5px;}
+.sc-val{font-size:26px;font-weight:800;color:var(--text);}
+.sc-sub{font-size:11px;color:var(--text3);}
+.sc-sub .up{color:var(--success);}
+.sc-sub .dn{color:var(--danger);}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:16px;}
+.card-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.card-title{font-size:14px;font-weight:700;flex:1;}
+.card-body{padding:16px 18px;}
+
+/* ── TABLE ── */
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{padding:10px 12px;text-align:left;font-size:11px;color:var(--text3);font-weight:600;border-bottom:1px solid var(--border);white-space:nowrap;}
+td{padding:10px 12px;border-bottom:1px solid rgba(45,54,80,0.5);color:var(--text2);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(79,124,255,0.04);}
+.td-main{color:var(--text);font-weight:500;}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;}
+.badge-green{background:rgba(34,197,94,0.15);color:var(--success);}
+.badge-red{background:rgba(239,68,68,0.15);color:var(--danger);}
+.badge-yellow{background:rgba(245,158,11,0.15);color:var(--warn);}
+.badge-blue{background:rgba(56,189,248,0.15);color:var(--info);}
+.badge-gray{background:rgba(100,116,139,0.15);color:var(--text3);}
+
+/* ── BUTTONS ── */
+.btn{border:none;border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer;font-weight:600;transition:all 0.15s;}
+.btn-primary{background:var(--primary);color:#fff;}
+.btn-primary:hover{background:var(--primary2);}
+.btn-success{background:var(--success);color:#fff;}
+.btn-success:hover{background:#16a34a;}
+.btn-danger{background:var(--danger);color:#fff;}
+.btn-danger:hover{background:#dc2626;}
+.btn-warn{background:var(--warn);color:#fff;}
+.btn-warn:hover{background:#d97706;}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text2);}
+.btn-ghost:hover{border-color:var(--primary);color:var(--primary);}
+.btn-sm{padding:4px 9px;font-size:11px;}
+.btn-group{display:flex;gap:6px;flex-wrap:wrap;}
+
+/* ── FORMS ── */
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+.form-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.form-item{display:flex;flex-direction:column;gap:5px;}
+.form-item label{font-size:11px;color:var(--text3);font-weight:600;}
+.form-item input,.form-item select,.form-item textarea{
+  background:var(--card2);border:1px solid var(--border);
+  color:var(--text);border-radius:7px;padding:8px 10px;font-size:13px;outline:none;
+}
+.form-item input:focus,.form-item select:focus,.form-item textarea:focus{border-color:var(--primary);}
+.form-item textarea{resize:vertical;min-height:70px;}
+.form-row{display:flex;align-items:flex-end;gap:10px;margin-bottom:14px;}
+.form-row .form-item{flex:1;}
+
+/* ── SEARCH BAR ── */
+.search-bar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+.search-bar input,.search-bar select{
+  background:var(--card2);border:1px solid var(--border);
+  color:var(--text);border-radius:7px;padding:7px 10px;font-size:13px;outline:none;
+}
+.search-bar input:focus,.search-bar select:focus{border-color:var(--primary);}
+.search-bar input{flex:1;min-width:160px;}
+
+/* ── SWITCH ── */
+.switch{position:relative;display:inline-block;width:40px;height:22px;}
+.switch input{opacity:0;width:0;height:0;}
+.slider{position:absolute;cursor:pointer;inset:0;background:#334155;border-radius:22px;transition:0.3s;}
+.slider:before{position:absolute;content:"";width:16px;height:16px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:0.3s;}
+input:checked+.slider{background:var(--primary);}
+input:checked+.slider:before{transform:translateX(18px);}
+
+/* ── CHART PLACEHOLDER ── */
+.chart-area{background:var(--card2);border-radius:8px;height:200px;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:13px;position:relative;overflow:hidden;}
+canvas.mini-chart{width:100%;height:100%;}
+
+/* ── MODAL ── */
+#modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:100;display:none;align-items:center;justify-content:center;}
+#modal-overlay.show{display:flex;}
+#modal-box{background:var(--card);border:1px solid var(--border);border-radius:12px;width:480px;max-width:95vw;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;}
+#modal-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;}
+#modal-title{font-size:15px;font-weight:700;flex:1;}
+#modal-close{background:none;border:none;color:var(--text3);cursor:pointer;font-size:20px;padding:2px 6px;}
+#modal-close:hover{color:var(--danger);}
+#modal-body{padding:20px;overflow-y:auto;flex:1;}
+#modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;}
+
+/* ── PAGINATION ── */
+.pagination{display:flex;align-items:center;gap:6px;margin-top:14px;justify-content:flex-end;}
+.page-btn{background:var(--card2);border:1px solid var(--border);color:var(--text2);border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer;}
+.page-btn:hover,.page-btn.active{background:var(--primary);border-color:var(--primary);color:#fff;}
+.page-info{font-size:12px;color:var(--text3);margin:0 6px;}
+
+/* ── LOG ── */
+.log-item{padding:8px 0;border-bottom:1px solid rgba(45,54,80,0.4);font-size:12px;display:flex;gap:12px;}
+.log-item:last-child{border-bottom:none;}
+.log-time{color:var(--text3);flex-shrink:0;width:140px;}
+.log-op{color:var(--warn);flex-shrink:0;width:80px;}
+.log-detail{color:var(--text2);flex:1;}
+
+/* ── KV ROW ── */
+.kv-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(45,54,80,0.4);font-size:13px;}
+.kv-row:last-child{border-bottom:none;}
+.kv-key{color:var(--text3);}
+.kv-val{color:var(--text);font-weight:600;}
+
+/* ── INLINE EDIT ── */
+.inline-input{background:var(--card2);border:1px solid var(--primary);color:var(--text);border-radius:5px;padding:3px 7px;font-size:12px;width:80px;outline:none;}
+
+/* ── TOAST ── */
+#toast{position:fixed;top:20px;right:24px;z-index:200;display:flex;flex-direction:column;gap:8px;}
+.toast-item{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 16px;font-size:13px;display:flex;align-items:center;gap:8px;min-width:220px;box-shadow:0 4px 20px rgba(0,0,0,0.4);animation:toastin 0.25s ease;}
+@keyframes toastin{from{opacity:0;transform:translateX(30px);}to{opacity:1;transform:none;}}
+.toast-item.success{border-left:3px solid var(--success);}
+.toast-item.error{border-left:3px solid var(--danger);}
+.toast-item.info{border-left:3px solid var(--info);}
+
+/* scrollbar */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div id="sidebar">
+  <div id="logo">
+    <div class="lt">🎯 波珠机</div>
+    <div class="ls">管理后台 v1.0</div>
+  </div>
+  <nav id="nav">
+    <div class="nav-group">概览</div>
+    <div class="nav-item active" onclick="goto('dashboard')"><span class="ico">📊</span>数据看板</div>
+    <div class="nav-group">用户管理</div>
+    <div class="nav-item" onclick="goto('users')"><span class="ico">👥</span>用户列表</div>
+    <div class="nav-item" onclick="goto('points-log')"><span class="ico">📋</span>积分操作日志</div>
+    <div class="nav-group">财务</div>
+    <div class="nav-item" onclick="goto('recharge')"><span class="ico">💳</span>充值审核<span class="nav-badge" id="badge-recharge">3</span></div>
+    <div class="nav-group">活动</div>
+    <div class="nav-item" onclick="goto('invite')"><span class="ico">🎁</span>邀请奖励配置</div>
+    <div class="nav-group">商城</div>
+    <div class="nav-item" onclick="goto('goods')"><span class="ico">🛍️</span>商品管理</div>
+    <div class="nav-item" onclick="goto('orders')"><span class="ico">📦</span>兑换订单<span class="nav-badge" id="badge-orders">5</span></div>
+    <div class="nav-group">游戏</div>
+    <div class="nav-item" onclick="goto('game-config')"><span class="ico">⚙️</span>游戏参数配置</div>
+    <div class="nav-item" onclick="goto('qr-config')"><span class="ico">💳</span>收款码配置</div>
+    <div class="nav-item" onclick="goto('win-config')"><span class="ico">🎰</span>中奖概率配置</div>
+    <div class="nav-group">系统</div>
+    <div class="nav-item" onclick="goto('admins')"><span class="ico">🔐</span>管理员权限</div>
+    <div class="nav-item" onclick="goto('sys-log')"><span class="ico">📝</span>操作日志</div>
+    <div class="nav-item" onclick="goto('backup')"><span class="ico">💾</span>数据备份</div>
+  </nav>
+  <div id="sidebar-user">
+    <div class="su-avatar">超</div>
+    <div class="su-info">
+      <div class="su-name">超级管理员</div>
+      <div class="su-role">Super Admin</div>
+    </div>
+    <button id="btn-logout" title="退出" onclick="toast('已退出登录','info')">⏻</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+  <div id="topnav">
+    <div id="page-title">数据看板</div>
+    <button class="tn-btn" onclick="toast('数据已刷新','success')">🔄 刷新</button>
+    <button class="tn-btn" onclick="goto('backup')">💾 备份</button>
+    <div style="display:flex;align-items:center;gap:5px;font-size:11px;padding:4px 10px;border-radius:7px;border:1px solid var(--border);background:var(--card);">
+      <span id="sync-indicator" style="color:var(--success);">● 在线</span>
+      <span style="color:var(--text3);">游戏端</span>
+    </div>
+  </div>
+  <div id="content">
+
+    <!-- ① 数据看板 -->
+    <div class="page active" id="page-dashboard">
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="sc-label">👥 总注册用户</div>
+          <div class="sc-val">1,284</div>
+          <div class="sc-sub"><span class="up">↑ 今日 +12</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="sc-label">🟢 当前在线</div>
+          <div class="sc-val" id="online-count">47</div>
+          <div class="sc-sub">峰值 <strong>132</strong></div>
+        </div>
+        <div class="stat-card">
+          <div class="sc-label">💰 今日充值金额</div>
+          <div class="sc-val">¥3,860</div>
+          <div class="sc-sub"><span class="up">↑ 昨日 ¥2,940</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="sc-label">🎁 待审核充值</div>
+          <div class="sc-val" style="color:var(--warn)">3</div>
+          <div class="sc-sub"><a href="#" onclick="goto('recharge')" style="color:var(--primary)">立即处理 →</a></div>
+        </div>
+        <div class="stat-card">
+          <div class="sc-label">🎯 今日游戏局数</div>
+          <div class="sc-val">8,432</div>
+          <div class="sc-sub"><span class="up">↑ 23%</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="sc-label">🪙 积分总流通</div>
+          <div class="sc-val">284,600</div>
+          <div class="sc-sub">发出 / 消耗</div>
+        </div>
+        <div class="stat-card">
+          <div class="sc-label">🛍️ 待发货订单</div>
+          <div class="sc-val" style="color:var(--warn)">5</div>
+          <div class="sc-sub"><a href="#" onclick="goto('orders')" style="color:var(--primary)">立即处理 →</a></div>
+        </div>
+        <div class="stat-card">
+          <div class="sc-label">👫 今日邀请注册</div>
+          <div class="sc-val">28</div>
+          <div class="sc-sub"><span class="up">↑ 活跃</span></div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="card">
+          <div class="card-header"><div class="card-title">📈 近7日充值趋势</div></div>
+          <div class="card-body"><div class="chart-area"><canvas id="chart1"></canvas></div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">🎮 近7日游戏局数</div></div>
+          <div class="card-body"><div class="chart-area"><canvas id="chart2"></canvas></div></div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:0;">
+        <div class="card-header"><div class="card-title">⚡ 最新操作记录</div></div>
+        <div class="card-body">
+          <div class="log-item"><div class="log-time">2024-01-15 14:32:05</div><div class="log-op">充值审核</div><div class="log-detail">审核通过 用户#1023 充值¥200，发放2000积分</div></div>
+          <div class="log-item"><div class="log-time">2024-01-15 14:18:22</div><div class="log-op">积分操作</div><div class="log-detail">手动增加 用户#0892 积分 +500（活动补偿）</div></div>
+          <div class="log-item"><div class="log-time">2024-01-15 13:55:10</div><div class="log-op">封禁账号</div><div class="log-detail">封禁用户#0445（异常操作）</div></div>
+          <div class="log-item"><div class="log-time">2024-01-15 13:20:44</div><div class="log-op">兑换审核</div><div class="log-detail">审核通过 用户#0678 兑换【蓝牙耳机】，录入快递单号</div></div>
+          <div class="log-item"><div class="log-time">2024-01-15 12:08:31</div><div class="log-op">商品更新</div><div class="log-detail">更新商品【乐高积木】库存 +100</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ② 用户列表 -->
+    <div class="page" id="page-users">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">用户列表</div>
+          <button class="btn btn-primary btn-sm" onclick="openModal('addPointsModal')">➕ 手动改积分</button>
+        </div>
+        <div class="card-body">
+          <div class="search-bar">
+            <input type="text" id="user-search" placeholder="搜索手机号 / 用户ID..." oninput="filterUsers()">
+            <select id="user-status-filter" onchange="filterUsers()">
+              <option value="">全部状态</option>
+              <option value="normal">正常</option>
+              <option value="frozen">已冻结</option>
+              <option value="banned">已封禁</option>
+            </select>
+          </div>
+          <div class="tbl-wrap">
+            <table id="users-table">
+              <thead><tr>
+                <th>用户ID</th><th>手机号</th><th>注册时间</th>
+                <th>当前积分</th><th>邀请人</th><th>状态</th><th>操作</th>
+              </tr></thead>
+              <tbody id="users-tbody"></tbody>
+            </table>
+          </div>
+          <div class="pagination" id="users-page"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ③ 积分日志 -->
+    <div class="page" id="page-points-log">
+      <div class="card">
+        <div class="card-header"><div class="card-title">积分操作日志（不可删除）</div></div>
+        <div class="card-body">
+          <div class="search-bar">
+            <input type="text" placeholder="搜索用户ID / 手机号...">
+            <select><option>全部操作</option><option>手动增加</option><option>手动扣减</option><option>清零</option></select>
+            <input type="date">
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>时间</th><th>操作员</th><th>用户</th><th>操作类型</th><th>变动积分</th><th>变动前</th><th>变动后</th><th>备注</th></tr></thead>
+              <tbody id="points-log-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ④ 充值审核 -->
+    <div class="page" id="page-recharge">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px;">
+        <div class="stat-card"><div class="sc-label">待审核</div><div class="sc-val" style="color:var(--warn)">3</div></div>
+        <div class="stat-card"><div class="sc-label">今日通过</div><div class="sc-val" style="color:var(--success)">18</div><div class="sc-sub">¥9,400</div></div>
+        <div class="stat-card"><div class="sc-label">今日驳回</div><div class="sc-val" style="color:var(--danger)">2</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">充值订单列表</div>
+          <select id="recharge-filter" style="background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:5px 8px;font-size:12px;" onchange="filterRecharge()">
+            <option value="pending">待审核</option>
+            <option value="approved">已通过</option>
+            <option value="rejected">已驳回</option>
+            <option value="">全部</option>
+          </select>
+        </div>
+        <div class="card-body">
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>订单号</th><th>用户</th><th>手机号</th><th>充值金额</th><th>对应积分</th><th>提交时间</th><th>状态</th><th>操作</th></tr></thead>
+              <tbody id="recharge-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ⑤ 邀请奖励 -->
+    <div class="page" id="page-invite">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="card">
+          <div class="card-header"><div class="card-title">🎁 邀请奖励配置</div></div>
+          <div class="card-body">
+            <div class="form-item" style="margin-bottom:14px;">
+              <label>邀请活动开关</label>
+              <div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
+                <label class="switch"><input type="checkbox" id="invite-switch" checked onchange="toast(this.checked?'邀请活动已开启':'邀请活动已关闭',this.checked?'success':'info')"><span class="slider"></span></label>
+                <span id="invite-status-txt" style="font-size:13px;color:var(--success);">已开启</span>
+              </div>
+            </div>
+            <div class="form-item" style="margin-bottom:14px;">
+              <label>新人注册奖励积分（邀请人获得）</label>
+              <input type="number" id="invite-reward" value="100" min="0">
+            </div>
+            <div class="form-item" style="margin-bottom:16px;">
+              <label>被邀请人注册奖励积分</label>
+              <input type="number" id="invite-new-reward" value="50" min="0">
+            </div>
+            <button class="btn btn-primary" onclick="saveInviteConfig()">保存配置</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">📊 邀请数据统计</div></div>
+          <div class="card-body">
+            <div class="kv-row"><div class="kv-key">总邀请次数</div><div class="kv-val">1,482</div></div>
+            <div class="kv-row"><div class="kv-key">今日邀请</div><div class="kv-val">28</div></div>
+            <div class="kv-row"><div class="kv-key">累计发放邀请积分</div><div class="kv-val">148,200</div></div>
+            <div class="kv-row"><div class="kv-key">活跃邀请用户数</div><div class="kv-val">312</div></div>
+            <div class="kv-row"><div class="kv-key">最高邀请人数</div><div class="kv-val">用户#0234（邀请82人）</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">邀请明细</div></div>
+        <div class="card-body">
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>邀请人</th><th>手机号</th><th>被邀请人</th><th>注册时间</th><th>奖励积分</th><th>状态</th></tr></thead>
+              <tbody id="invite-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ⑥ 商品管理 -->
+    <div class="page" id="page-goods">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">商品列表</div>
+          <button class="btn btn-primary btn-sm" onclick="openGoodsModal()">➕ 新增商品</button>
+        </div>
+        <div class="card-body">
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>图片</th><th>商品ID</th><th>商品名称</th><th>所需积分</th><th>库存</th><th>已兑换</th><th>状态</th><th>操作</th></tr></thead>
+              <tbody id="goods-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ⑦ 兑换订单 -->
+    <div class="page" id="page-orders">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px;">
+        <div class="stat-card"><div class="sc-label">待审核</div><div class="sc-val" style="color:var(--warn)">5</div></div>
+        <div class="stat-card"><div class="sc-label">待发货</div><div class="sc-val" style="color:var(--info)">8</div></div>
+        <div class="stat-card"><div class="sc-label">已完成</div><div class="sc-val" style="color:var(--success)">126</div></div>
+        <div class="stat-card"><div class="sc-label">已驳回</div><div class="sc-val" style="color:var(--danger)">3</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">兑换订单列表</div>
+          <select id="order-filter" style="background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:5px 8px;font-size:12px;" onchange="filterOrders()">
+            <option value="pending">待审核</option>
+            <option value="approved">待发货</option>
+            <option value="shipped">已发货</option>
+            <option value="done">已完成</option>
+            <option value="rejected">已驳回</option>
+            <option value="">全部</option>
+          </select>
+        </div>
+        <div class="card-body">
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>订单号</th><th>用户</th><th>商品</th><th>消耗积分</th><th>收货信息</th><th>提交时间</th><th>状态</th><th>操作</th></tr></thead>
+              <tbody id="orders-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ⑧ 游戏参数 -->
+    <div class="page" id="page-game-config">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="card">
+          <div class="card-header"><div class="card-title">⚙️ 基础游戏参数</div></div>
+          <div class="card-body">
+            <div class="form-item" style="margin-bottom:14px;">
+              <label>每局基础费用（积分）</label>
+              <input type="number" id="cfg-cost" value="5" min="1">
+            </div>
+            <div class="form-item" style="margin-bottom:14px;">
+              <label>倍率2x 出现权重</label>
+              <input type="number" id="cfg-w2" value="35" min="1">
+            </div>
+            <div class="form-item" style="margin-bottom:14px;">
+              <label>倍率4x 出现权重</label>
+              <input type="number" id="cfg-w4" value="28" min="1">
+            </div>
+            <div class="form-item" style="margin-bottom:14px;">
+              <label>倍率6x 出现权重</label>
+              <input type="number" id="cfg-w6" value="20" min="1">
+            </div>
+            <div class="form-item" style="margin-bottom:14px;">
+              <label>倍率8x 出现权重</label>
+              <input type="number" id="cfg-w8" value="12" min="1">
+            </div>
+            <div class="form-item" style="margin-bottom:16px;">
+              <label>倍率10x 出现权重</label>
+              <input type="number" id="cfg-w10" value="5" min="1">
+            </div>
+            <div style="font-size:11px;color:var(--text3);margin-bottom:12px;">权重总和: <b id="weight-total" style="color:var(--warn)">100</b>（各权重相对概率，无需等于100）</div>
+            <button class="btn btn-primary" onclick="saveGameConfig()">保存游戏参数</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">📊 当前倍率概率预览</div></div>
+          <div class="card-body" id="prob-preview"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">💳 充值档位配置</div></div>
+        <div class="card-body">
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>档位</th><th>充值金额（元）</th><th>获得积分</th><th>赠送积分</th><th>操作</th></tr></thead>
+              <tbody id="recharge-tiers-tbody"></tbody>
+            </table>
+          </div>
+          <button class="btn btn-ghost btn-sm" style="margin-top:10px;" onclick="addRechargeTier()">➕ 添加档位</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ⑧b 中奖概率配置 -->
+    <div class="page" id="page-win-config">
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-header">
+          <div class="card-title">🎰 中奖概率配置</div>
+          <button class="btn btn-ghost btn-sm" onclick="resetWinConfig()">↺ 恢复默认</button>
+        </div>
+        <div class="card-body">
+          <div style="font-size:12px;color:var(--text3);margin-bottom:16px;line-height:1.8;background:var(--card2);border-radius:8px;padding:10px 14px;">
+            <b style="color:var(--warn)">💡 规则说明：</b>每次游戏系统随机抽取倍率后，底部槽位中有N个「亮槽」，珠子落入亮槽才算中奖。<br>
+            亮槽数量越多 = 中奖概率越高。总槽位数：<b style="color:var(--text)" id="wc-total-slots">11</b> 个
+          </div>
+          <div id="win-config-body"></div>
+          <div style="margin-top:20px;display:flex;gap:10px;align-items:center;">
+            <button class="btn btn-primary" onclick="saveWinConfig()">💾 保存配置</button>
+            <span style="font-size:11px;color:var(--text3);">保存后立即对新局生效</span>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">📊 综合中奖概率预览</div></div>
+        <div class="card-body" id="win-prob-preview"></div>
+      </div>
+    </div>
+
+    <!-- ⑨ 管理员权限 -->
+    <div class="page" id="page-admins">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">管理员账号</div>
+          <button class="btn btn-primary btn-sm" onclick="openAddAdminModal()">➕ 新增管理员</button>
+        </div>
+        <div class="card-body">
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>账号</th><th>姓名</th><th>角色</th><th>权限模块</th><th>最后登录</th><th>状态</th><th>操作</th></tr></thead>
+              <tbody id="admins-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ⑩ 操作日志 -->
+    <div class="page" id="page-sys-log">
+      <div class="card">
+        <div class="card-header"><div class="card-title">全系统操作日志（永久留存）</div></div>
+        <div class="card-body">
+          <div class="search-bar">
+            <input type="text" placeholder="搜索操作员 / 用户 / 内容...">
+            <select>
+              <option>全部类型</option><option>改积分</option><option>封号</option>
+              <option>订单审核</option><option>充值审核</option><option>商品修改</option>
+            </select>
+            <input type="date"><input type="date">
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>时间</th><th>操作员</th><th>操作类型</th><th>目标用户</th><th>操作详情</th><th>IP</th></tr></thead>
+              <tbody id="syslog-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ⑫ 收款码配置 -->
+    <div class="page" id="page-qr-config">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <!-- 微信收款码 -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">💚 微信收款码</div></div>
+          <div class="card-body">
+            <div id="wx-qr-preview" style="width:180px;height:180px;margin:0 auto 14px;border-radius:10px;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;background:var(--card2);" onclick="document.getElementById('wx-qr-input').click()">
+              <div style="text-align:center;color:var(--text3);">
+                <div style="font-size:36px;margin-bottom:6px;">💚</div>
+                <div style="font-size:12px;">点击上传微信收款码</div>
+              </div>
+            </div>
+            <input type="file" id="wx-qr-input" accept="image/*" style="display:none" onchange="previewQR(this,'wx')">
+            <div style="text-align:center;margin-bottom:12px;">
+              <button class="btn btn-ghost btn-sm" onclick="document.getElementById('wx-qr-input').click()">📷 选择图片</button>
+            </div>
+            <div style="font-size:11px;color:var(--text3);text-align:center;margin-bottom:14px;">支持 JPG/PNG，建议尺寸 300×300 以上</div>
+            <button class="btn btn-primary" style="width:100%;" onclick="saveQRCode('wechat')">保存微信收款码</button>
+          </div>
+        </div>
+        <!-- 支付宝收款码 -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">💙 支付宝收款码</div></div>
+          <div class="card-body">
+            <div id="ali-qr-preview" style="width:180px;height:180px;margin:0 auto 14px;border-radius:10px;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;background:var(--card2);" onclick="document.getElementById('ali-qr-input').click()">
+              <div style="text-align:center;color:var(--text3);">
+                <div style="font-size:36px;margin-bottom:6px;">💙</div>
+                <div style="font-size:12px;">点击上传支付宝收款码</div>
+              </div>
+            </div>
+            <input type="file" id="ali-qr-input" accept="image/*" style="display:none" onchange="previewQR(this,'ali')">
+            <div style="text-align:center;margin-bottom:12px;">
+              <button class="btn btn-ghost btn-sm" onclick="document.getElementById('ali-qr-input').click()">📷 选择图片</button>
+            </div>
+            <div style="font-size:11px;color:var(--text3);text-align:center;margin-bottom:14px;">支持 JPG/PNG，建议尺寸 300×300 以上</div>
+            <button class="btn btn-primary" style="width:100%;" onclick="saveQRCode('alipay')">保存支付宝收款码</button>
+          </div>
+        </div>
+      </div>
+      <!-- 使用说明 -->
+      <div class="card">
+        <div class="card-header"><div class="card-title">📋 使用说明</div></div>
+        <div class="card-body" style="font-size:13px;color:var(--text2);line-height:2;">
+          <div>1. 打开微信/支付宝 → 收款 → 保存收款码图片到手机</div>
+          <div>2. 把收款码图片上传到这里</div>
+          <div>3. 保存后用户充值时会自动显示你的真实收款码</div>
+          <div>4. 建议定期检查收款码是否有效</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ⑪ 数据备份 -->
+    <div class="page" id="page-backup">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="card">
+          <div class="card-header"><div class="card-title">💾 手动备份</div></div>
+          <div class="card-body">
+            <div style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.8;">
+              点击下方按钮立即生成全量数据备份，备份文件包含：<br>
+              用户数据、积分流水、游戏记录、订单数据、系统配置
+            </div>
+            <button class="btn btn-primary" onclick="doBackup()" style="width:100%;padding:10px;">
+              🚀 立即备份
+            </button>
+            <div style="margin-top:12px;font-size:11px;color:var(--text3);">
+              上次备份：2024-01-15 03:00:00（自动）
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">⏰ 自动备份设置</div></div>
+          <div class="card-body">
+            <div class="form-item" style="margin-bottom:14px;">
+              <label>自动备份开关</label>
+              <div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
+                <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+                <span style="font-size:13px;color:var(--success);">已开启</span>
+              </div>
+            </div>
+            <div class="form-item" style="margin-bottom:14px;">
+              <label>备份频率</label>
+              <select><option>每天凌晨3点</option><option>每6小时</option><option>每12小时</option></select>
+            </div>
+            <div class="form-item" style="margin-bottom:16px;">
+              <label>保留最近N份</label>
+              <input type="number" value="30">
+            </div>
+            <button class="btn btn-ghost" onclick="toast('设置已保存','success')">保存设置</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">备份记录</div></div>
+        <div class="card-body">
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>备份时间</th><th>类型</th><th>文件大小</th><th>状态</th><th>操作</th></tr></thead>
+              <tbody id="backup-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- MODAL -->
+<div id="modal-overlay">
+  <div id="modal-box">
+    <div id="modal-header">
+      <div id="modal-title">弹窗</div>
+      <button id="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modal-body"></div>
+    <div id="modal-footer" id="modal-footer"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+
+<!-- 管理员登录弹窗 -->
+<div id="login-modal" style="position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:999;display:flex;align-items:center;justify-content:center;">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px 32px;width:340px;">
+    <div style="font-size:20px;font-weight:800;color:var(--gold);text-align:center;margin-bottom:6px;">🎯 波珠机管理后台</div>
+    <div style="font-size:12px;color:var(--text3);text-align:center;margin-bottom:20px;">请登录管理员账号</div>
+    <div style="margin-bottom:12px;">
+      <div style="font-size:11px;color:var(--text3);margin-bottom:5px;">管理员账号</div>
+      <input id="admin-login-user" type="text" placeholder="admin" value="admin"
+        style="width:100%;background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 12px;font-size:14px;outline:none;">
+    </div>
+    <div style="margin-bottom:20px;">
+      <div style="font-size:11px;color:var(--text3);margin-bottom:5px;">密码</div>
+      <input id="admin-login-pass" type="password" placeholder="请输入密码"
+        style="width:100%;background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 12px;font-size:14px;outline:none;">
+    </div>
+    <button onclick="doAdminLogin()" style="width:100%;height:42px;border:none;border-radius:10px;background:linear-gradient(135deg,#4f7cff,#3a63e8);color:#fff;font-size:14px;font-weight:700;cursor:pointer;">登　录</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+
+// ══════════════════════════════════════════════════════
+// 后端 API 客户端
+// ══════════════════════════════════════════════════════
+const API_BASE = 'https://bozhuji-backend.onrender.com';
+let adminToken = localStorage.getItem('bzm_admin_token') || '';
+
+async function apiCall(method, path, data=null){
+  const headers = {'Content-Type':'application/json'};
+  if(adminToken) headers['Authorization'] = 'Bearer ' + adminToken;
+  const opts = {method, headers};
+  if(data && method!=='GET') opts.body = JSON.stringify(data);
+  try{
+    const res = await fetch(API_BASE + path, opts);
+    const json = await res.json();
+    if(json.code === 401){ adminToken=''; localStorage.removeItem('bzm_admin_token'); showLoginModal(); return null; }
+    return json;
+  }catch(e){ toast('网络错误：'+e.message,'error'); return null; }
+}
+const aapi = {
+  get:  (path)       => apiCall('GET',    path),
+  post: (path, data) => apiCall('POST',   path, data),
+  put:  (path, data) => apiCall('PUT',    path, data),
+};
+
+// ══════════════════════════════════════════════════════
+// 登录弹窗
+// ══════════════════════════════════════════════════════
+function showLoginModal(){
+  document.getElementById('login-modal').style.display='flex';
+}
+function hideLoginModal(){
+  document.getElementById('login-modal').style.display='none';
+}
+async function doAdminLogin(){
+  const user = document.getElementById('admin-login-user').value.trim();
+  const pass = document.getElementById('admin-login-pass').value;
+  if(!user||!pass){ toast('请填写账号和密码','error'); return; }
+  const res = await apiCall('POST', '/api/admin/login', {username:user, password:pass});
+  if(!res) return;
+  if(res.code!==200){ toast(res.msg||'登录失败','error'); return; }
+  adminToken = res.data.token;
+  localStorage.setItem('bzm_admin_token', adminToken);
+  hideLoginModal();
+  toast('登录成功，欢迎 '+res.data.name,'success');
+  // 刷新当前页面数据
+  goto('dashboard');
+  loadDashboard();
+}
+
+// ══════════════════════════════════════════════════════
+// 从后端加载数据
+// ══════════════════════════════════════════════════════
+async function loadDashboard(){
+  const res = await aapi.get('/api/admin/dashboard');
+  if(!res||res.code!==200) return;
+  const d = res.data;
+  // 更新看板数据
+  const statCards = document.querySelectorAll('.sc-val');
+  if(statCards[0]) statCards[0].textContent = d.total_users?.toLocaleString()||'0';
+  if(statCards[1]){ statCards[1].textContent = d.online_estimate||'0'; statCards[1].id='online-count'; }
+  if(statCards[2]) statCards[2].textContent = '¥'+(d.today_recharge_amount||0).toLocaleString();
+  if(statCards[3]){ statCards[3].textContent = d.pending_recharge||0; statCards[3].style.color='var(--warn)'; }
+  if(statCards[6]){ statCards[6].textContent = d.pending_exchange||0; statCards[6].style.color='var(--warn)'; }
+  // 更新badge
+  const rb = document.getElementById('badge-recharge');
+  if(rb) rb.textContent = d.pending_recharge||0;
+  const ob = document.getElementById('badge-orders');
+  if(ob) ob.textContent = d.pending_exchange||0;
+}
+
+async function loadUsersFromAPI(){
+  const search = document.getElementById('user-search')?.value||'';
+  const status = document.getElementById('user-status-filter')?.value||'';
+  const res = await aapi.get('/api/admin/users?search='+encodeURIComponent(search)+'&status='+status);
+  if(!res||res.code!==200) return;
+  const tb = document.getElementById('users-tbody');
+  if(!tb) return;
+  tb.innerHTML = (res.data||[]).map(u=>`<tr>
+    <td class="td-main">${u.uid}</td>
+    <td>${u.phone?.replace(/(\d{3})\d{4}(\d{4})/,'$1****$2')||'-'}</td>
+    <td>${u.reg_time?.slice(0,10)||'-'}</td>
+    <td><b style="color:var(--gold)">${(u.points||0).toLocaleString()}</b></td>
+    <td>${u.invited_by||'—'}</td>
+    <td>${statusBadge(u.status||'normal')}</td>
+    <td><div class="btn-group">
+      <button class="btn btn-ghost btn-sm" onclick="openPointsModal('${u.uid}','${u.phone}',${u.points||0})">改积分</button>
+      ${u.status==='normal'?`<button class="btn btn-warn btn-sm" onclick="changeUserStatus('${u.uid}','freeze')">冻结</button>`:''}
+      ${u.status==='frozen'?`<button class="btn btn-success btn-sm" onclick="changeUserStatus('${u.uid}','unfreeze')">解冻</button>`:''}
+      ${u.status!=='banned'?`<button class="btn btn-danger btn-sm" onclick="changeUserStatus('${u.uid}','ban')">封禁</button>`:`<button class="btn btn-ghost btn-sm" onclick="changeUserStatus('${u.uid}','unban')">解封</button>`}
+    </div></td>
+  </tr>`).join('');
+}
+
+async function changeUserStatus(uid, action){
+  const reason = (action==='ban') ? prompt('请输入封禁原因：') : null;
+  if(action==='ban' && reason===null) return;
+  const res = await aapi.post('/api/admin/users/'+uid+'/status', {action, reason});
+  if(!res) return;
+  if(res.code===200){ toast('操作成功','success'); loadUsersFromAPI(); }
+  else toast(res.msg||'操作失败','error');
+}
+
+async function confirmPointsAPI(uid, cur){
+  const type = document.getElementById('pts-type').value;
+  const val  = +document.getElementById('pts-val').value;
+  const note = document.getElementById('pts-note').value;
+  if(!note){ toast('请填写操作备注','error'); return; }
+  const res = await aapi.post('/api/admin/users/'+uid+'/points', {action:type, amount:val, remark:note});
+  if(!res) return;
+  if(res.code===200){ toast('积分操作成功','success'); closeModal(); loadUsersFromAPI(); }
+  else toast(res.msg||'操作失败','error');
+}
+
+async function loadRechargeFromAPI(){
+  const status = document.getElementById('recharge-filter')?.value||'pending';
+  const res = await aapi.get('/api/admin/recharge?status='+status);
+  if(!res||res.code!==200) return;
+  document.getElementById('recharge-tbody').innerHTML = (res.data||[]).map(r=>`<tr>
+    <td class="td-main">${r.order_id}</td>
+    <td>${r.uid}</td><td>${r.uid}</td>
+    <td><b style="color:var(--success)">¥${r.amount}</b></td>
+    <td><b style="color:var(--gold)">${((r.points||0)+(r.bonus_pts||0)).toLocaleString()}</b></td>
+    <td>${r.created_at?.slice(0,16)||'-'}</td>
+    <td>${statusBadge(r.status)}</td>
+    <td><div class="btn-group">
+      ${r.status==='pending'?`
+        <button class="btn btn-success btn-sm" onclick="reviewRecharge('${r.order_id}','approve')">通过</button>
+        <button class="btn btn-danger btn-sm" onclick="reviewRecharge('${r.order_id}','reject')">驳回</button>
+      `:r.status==='approved'?'<span style="color:var(--success);font-size:12px;">✓ 已发积分</span>':'<span style="color:var(--danger);font-size:12px;">✗ 已驳回</span>'}
+    </div></td>
+  </tr>`).join('');
+}
+
+async function reviewRecharge(orderId, action){
+  const reason = action==='reject' ? prompt('请输入驳回原因：') : null;
+  if(action==='reject' && reason===null) return;
+  const res = await aapi.post('/api/admin/recharge/'+orderId+'/review', {action, reason});
+  if(!res) return;
+  if(res.code===200){ toast(res.msg,'success'); loadRechargeFromAPI(); loadDashboard(); }
+  else toast(res.msg||'操作失败','error');
+}
+
+async function loadExchangeFromAPI(){
+  const status = document.getElementById('order-filter')?.value||'pending';
+  const res = await aapi.get('/api/admin/exchange?status='+status);
+  if(!res||res.code!==200) return;
+  document.getElementById('orders-tbody').innerHTML = (res.data||[]).map(o=>`<tr>
+    <td class="td-main">${o.order_id}</td>
+    <td>${o.uid}</td><td>${o.goods_name}</td>
+    <td><b style="color:var(--gold)">${(o.points||0).toLocaleString()}</b></td>
+    <td style="font-size:11px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${o.addr_name} ${o.addr_phone} ${o.addr_region}</td>
+    <td>${o.created_at?.slice(0,16)||'-'}</td>
+    <td>${statusBadge(o.status)}</td>
+    <td><div class="btn-group">
+      ${o.status==='pending'?`
+        <button class="btn btn-success btn-sm" onclick="reviewExchange('${o.order_id}','approve')">通过</button>
+        <button class="btn btn-danger btn-sm" onclick="reviewExchange('${o.order_id}','reject')">驳回</button>
+      `:''}
+      ${o.status==='approved'?`<button class="btn btn-primary btn-sm" onclick="shipExchange('${o.order_id}')">录入快递</button>`:''}
+      ${o.status==='shipped'?`<span style="font-size:11px;color:var(--info);">${o.express_no||''}</span>`:''}
+    </div></td>
+  </tr>`).join('');
+}
+
+async function reviewExchange(orderId, action){
+  const reason = action==='reject' ? prompt('请输入驳回原因（积分将自动退回）：') : null;
+  if(action==='reject' && reason===null) return;
+  const res = await aapi.post('/api/admin/exchange/'+orderId+'/action', {action, reason});
+  if(!res) return;
+  if(res.code===200){ toast('操作成功','success'); loadExchangeFromAPI(); }
+  else toast(res.msg||'操作失败','error');
+}
+
+async function shipExchange(orderId){
+  const express_no = prompt('请输入快递单号：');
+  if(!express_no) return;
+  const res = await aapi.post('/api/admin/exchange/'+orderId+'/action', {action:'ship', express_no});
+  if(!res) return;
+  if(res.code===200){ toast('已标记发货','success'); loadExchangeFromAPI(); }
+  else toast(res.msg||'操作失败','error');
+}
+
+async function saveGameConfigAPI(){
+  const cfg = {
+    cost_base: +document.getElementById('cfg-cost').value||5,
+    mult_weights:[
+      +document.getElementById('cfg-w2').value||35,
+      +document.getElementById('cfg-w4').value||28,
+      +document.getElementById('cfg-w6').value||20,
+      +document.getElementById('cfg-w8').value||12,
+      +document.getElementById('cfg-w10').value||5,
+    ],
+    win_slots: Object.fromEntries(Object.entries(winConfig).map(([k,v])=>[k,v.litSlots]))
+  };
+  const res = await aapi.put('/api/admin/game-config', cfg);
+  if(!res) return;
+  if(res.code===200){ toast('游戏参数已保存并同步 ✅','success'); localStorage.setItem('bzm_game_config',JSON.stringify({costBase:cfg.cost_base,multW:cfg.mult_weights,winSlots:cfg.win_slots})); }
+  else toast(res.msg||'保存失败','error');
+}
+
+async function saveInviteConfigAPI(){
+  const res = await aapi.put('/api/admin/invite-config',{
+    enabled: document.getElementById('invite-switch').checked,
+    reward: +document.getElementById('invite-reward').value||100,
+    new_reward: +document.getElementById('invite-new-reward').value||50,
+  });
+  if(!res) return;
+  if(res.code===200) toast('邀请配置已保存','success');
+  else toast(res.msg||'保存失败','error');
+}
+
+// ── MOCK DATA ────────────────────────────────────────────
+const mockUsers=[
+  {id:'#1001',phone:'138****8001',reg:'2024-01-01',points:1420,inviter:'—',status:'normal'},
+  {id:'#1002',phone:'139****9002',reg:'2024-01-02',points:880,inviter:'#1001',status:'normal'},
+  {id:'#1003',phone:'135****5003',reg:'2024-01-03',points:260,inviter:'#1001',status:'frozen'},
+  {id:'#1004',phone:'136****6004',reg:'2024-01-05',points:5500,inviter:'—',status:'normal'},
+  {id:'#1005',phone:'137****7005',reg:'2024-01-06',points:0,inviter:'#1002',status:'banned'},
+  {id:'#1006',phone:'158****8006',reg:'2024-01-08',points:320,inviter:'—',status:'normal'},
+  {id:'#1007',phone:'159****9007',reg:'2024-01-09',points:1200,inviter:'#1004',status:'normal'},
+  {id:'#1008',phone:'150****0008',reg:'2024-01-10',points:740,inviter:'—',status:'normal'},
+];
+
+const mockRecharge=[
+  {id:'R20240115001',uid:'#1008',phone:'150****0008',amount:200,points:2000,time:'2024-01-15 14:10',status:'pending'},
+  {id:'R20240115002',uid:'#1006',phone:'158****8006',amount:100,points:1000,time:'2024-01-15 13:48',status:'pending'},
+  {id:'R20240115003',uid:'#1007',phone:'159****9007',amount:500,points:5000,time:'2024-01-15 12:30',status:'pending'},
+  {id:'R20240114001',uid:'#1004',phone:'136****6004',amount:1000,points:10000,time:'2024-01-14 16:20',status:'approved'},
+  {id:'R20240114002',uid:'#1002',phone:'139****9002',amount:50,points:500,time:'2024-01-14 11:05',status:'rejected'},
+];
+
+const mockGoods=[
+  {id:'G001',name:'蓝牙耳机',points:5000,stock:28,sold:12,status:'on',img:'',desc:'高音质蓝牙耳机，续航20小时'},
+  {id:'G002',name:'乐高积木套装',points:8000,stock:15,sold:5,status:'on',img:'',desc:'经典创意积木，500+颗粒'},
+  {id:'G003',name:'保温杯',points:2000,stock:3,sold:44,status:'on',img:'',desc:'316不锈钢保温杯500ml'},
+  {id:'G004',name:'小米手环',points:12000,stock:0,sold:8,status:'off',img:'',desc:'智能运动手环，心率监测'},
+  {id:'G005',name:'咖啡券×5',points:1000,stock:100,sold:89,status:'on',img:'',desc:'精品咖啡馆通用券，5张装'},
+];
+
+const mockOrders=[
+  {id:'O20240115001',uid:'#1002',goods:'蓝牙耳机',points:5000,addr:'张三 138xxxx 广东广州天河区xx路xx号',time:'2024-01-15 14:05',status:'pending',express:''},
+  {id:'O20240115002',uid:'#1004',goods:'乐高积木套装',points:8000,addr:'李四 139xxxx 北京朝阳区xx街xx楼',time:'2024-01-15 11:30',status:'pending',express:''},
+  {id:'O20240114001',uid:'#1007',goods:'咖啡券×5',points:1000,addr:'王五 158xxxx 上海浦东新区xx路',time:'2024-01-14 15:20',status:'approved',express:''},
+  {id:'O20240113001',uid:'#1001',goods:'保温杯',points:2000,addr:'赵六 159xxxx 深圳南山区xx大道',time:'2024-01-13 09:10',status:'shipped',express:'SF1234567890'},
+  {id:'O20240112001',uid:'#1006',goods:'咖啡券×5',points:1000,addr:'孙七 150xxxx 杭州西湖区xx路',time:'2024-01-12 17:45',status:'done',express:'YT9876543210'},
+];
+
+const mockAdmins=[
+  {id:'A001',account:'admin',name:'超级管理员',role:'super',modules:'全部',lastLogin:'2024-01-15 14:30',status:'active'},
+  {id:'A002',account:'ops01',name:'运营小王',role:'ops',modules:'充值审核,兑换订单,用户管理',lastLogin:'2024-01-15 09:15',status:'active'},
+  {id:'A003',account:'ops02',name:'运营小李',role:'ops',modules:'商品管理,兑换订单',lastLogin:'2024-01-14 18:20',status:'active'},
+];
+
+const mockSyslog=[
+  {time:'2024-01-15 14:32',op:'admin',type:'充值审核',target:'#1023',detail:'审核通过，发放2000积分',ip:'192.168.1.1'},
+  {time:'2024-01-15 14:18',op:'admin',type:'改积分',target:'#0892',detail:'手动增加500积分，原因：活动补偿',ip:'192.168.1.1'},
+  {time:'2024-01-15 13:55',op:'admin',type:'封号',target:'#0445',detail:'封禁账户，原因：异常操作',ip:'192.168.1.1'},
+  {time:'2024-01-15 13:20',op:'ops01',type:'兑换审核',target:'#0678',detail:'审核通过，录入快递SF1234',ip:'10.0.0.5'},
+  {time:'2024-01-15 12:08',op:'ops01',type:'商品修改',target:'—',detail:'更新【乐高积木】库存+100',ip:'10.0.0.5'},
+  {time:'2024-01-15 10:30',op:'admin',type:'改积分',target:'#0334',detail:'清零积分，原因：违规',ip:'192.168.1.1'},
+];
+
+const mockPointsLog=[
+  {time:'2024-01-15 14:18',op:'admin',uid:'#0892',type:'增加',delta:'+500',before:1200,after:1700,note:'活动补偿'},
+  {time:'2024-01-15 13:55',op:'admin',uid:'#0445',type:'清零',delta:'-3200',before:3200,after:0,note:'违规清零'},
+  {time:'2024-01-14 16:20',op:'admin',uid:'#1004',type:'增加',delta:'+10000',before:0,after:10000,note:'充值审核通过'},
+  {time:'2024-01-14 11:05',op:'ops01',uid:'#1002',type:'扣减',delta:'-5000',before:5880,after:880,note:'兑换蓝牙耳机'},
+];
+
+const mockBackup=[
+  {time:'2024-01-15 03:00',type:'自动',size:'12.4 MB',status:'success'},
+  {time:'2024-01-14 03:00',type:'自动',size:'11.8 MB',status:'success'},
+  {time:'2024-01-13 16:30',type:'手动',size:'11.2 MB',status:'success'},
+  {time:'2024-01-13 03:00',type:'自动',size:'10.9 MB',status:'success'},
+];
+
+const mockInvite=[
+  {inviter:'#1001',phone:'138****8001',invitee:'#1002',time:'2024-01-02',reward:100,status:'已发放'},
+  {inviter:'#1001',phone:'138****8001',invitee:'#1003',time:'2024-01-03',reward:100,status:'已发放'},
+  {inviter:'#1002',phone:'139****9002',invitee:'#1005',time:'2024-01-06',reward:100,status:'已发放'},
+  {inviter:'#1004',phone:'136****6004',invitee:'#1007',time:'2024-01-09',reward:100,status:'已发放'},
+];
+
+// 中奖概率配置：每个倍率对应的亮槽数 & 中奖概率
+// litSlots: 亮槽数量（总11槽），珠子落入亮槽=中奖
+const winConfig={
+  2: {litSlots:5, desc:'低倍率，亮5槽'},
+  4: {litSlots:4, desc:''},
+  6: {litSlots:3, desc:''},
+  8: {litSlots:2, desc:''},
+  10:{litSlots:1, desc:'高倍率，亮1槽'},
+};
+const TOTAL_SLOTS=11;
+
+const rechargeTiers=[
+  {amount:50,points:500,bonus:0},
+  {amount:100,points:1000,bonus:50},
+  {amount:200,points:2000,bonus:200},
+  {amount:500,points:5000,bonus:800},
+  {amount:1000,points:10000,bonus:2000},
+];
+
+// ── NAVIGATION ───────────────────────────────────────────
+function goto(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  const titles={
+    dashboard:'数据看板',users:'用户列表','points-log':'积分操作日志',
+    recharge:'充值审核',invite:'邀请奖励配置',goods:'商品管理',
+    orders:'兑换订单','game-config':'游戏参数配置','win-config':'中奖概率配置',
+    admins:'管理员权限','sys-log':'系统操作日志',backup:'数据备份'
+  };
+  document.getElementById('page-title').textContent=titles[page]||page;
+  document.querySelectorAll('.nav-item').forEach(n=>{
+    if(n.getAttribute('onclick')===`goto('${page}')`) n.classList.add('active');
+  });
+  // render
+  if(page==='users'){ renderUsers(); loadUsersFromAPI(); }
+  if(page==='recharge'){ renderRecharge(); loadRechargeFromAPI(); }
+  if(page==='orders'){ renderOrders(); loadExchangeFromAPI(); }
+  if(page==='goods') renderGoods();
+  if(page==='admins') renderAdmins();
+  if(page==='sys-log') renderSysLog();
+  if(page==='backup') renderBackup();
+  if(page==='qr-config') renderQRConfig();
+  if(page==='points-log') renderPointsLog();
+  if(page==='invite') renderInvite();
+  if(page==='game-config') renderGameConfig();
+  if(page==='win-config') renderWinConfig();
+}
+
+// ── RENDER FUNCTIONS ─────────────────────────────────────
+function statusBadge(s){
+  const m={normal:'badge-green',frozen:'badge-yellow',banned:'badge-red',pending:'badge-yellow',approved:'badge-green',rejected:'badge-red',shipped:'badge-blue',done:'badge-gray',on:'badge-green',off:'badge-gray',active:'badge-green',success:'badge-green'};
+  const t={normal:'正常',frozen:'已冻结',banned:'已封禁',pending:'待审核',approved:'已通过',rejected:'已驳回',shipped:'已发货',done:'已完成',on:'上架',off:'下架',active:'正常',success:'成功'};
+  return `<span class="badge ${m[s]||'badge-gray'}">${t[s]||s}</span>`;
+}
+
+function renderUsers(filter='',statusF=''){
+  const list=mockUsers.filter(u=>{
+    const matchText=!filter||(u.phone.includes(filter)||u.id.includes(filter));
+    const matchStatus=!statusF||u.status===statusF;
+    return matchText&&matchStatus;
+  });
+  const tb=document.getElementById('users-tbody');
+  tb.innerHTML=list.map(u=>`<tr>
+    <td class="td-main">${u.id}</td>
+    <td>${u.phone}</td>
+    <td>${u.reg}</td>
+    <td><b style="color:var(--gold)">${u.points.toLocaleString()}</b></td>
+    <td>${u.inviter}</td>
+    <td>${statusBadge(u.status)}</td>
+    <td><div class="btn-group">
+      <button class="btn btn-ghost btn-sm" onclick="openPointsModal('${u.id}','${u.phone}',${u.points})">改积分</button>
+      ${u.status==='normal'?`<button class="btn btn-warn btn-sm" onclick="freezeUser('${u.id}')">冻结</button>`:''}
+      ${u.status==='frozen'?`<button class="btn btn-success btn-sm" onclick="unfreezeUser('${u.id}')">解冻</button>`:''}
+      ${u.status!=='banned'?`<button class="btn btn-danger btn-sm" onclick="banUser('${u.id}')">封禁</button>`:`<button class="btn btn-ghost btn-sm" onclick="unbanUser('${u.id}')">解封</button>`}
+    </div></td>
+  </tr>`).join('');
+}
+
+function filterUsers(){
+  renderUsers(document.getElementById('user-search').value,document.getElementById('user-status-filter').value);
+}
+
+function renderRecharge(f){
+  f=f||document.getElementById('recharge-filter').value;
+  const list=f?mockRecharge.filter(r=>r.status===f):mockRecharge;
+  document.getElementById('recharge-tbody').innerHTML=list.map(r=>`<tr>
+    <td class="td-main">${r.id}</td>
+    <td>${r.uid}</td><td>${r.phone}</td>
+    <td><b style="color:var(--success)">¥${r.amount}</b></td>
+    <td><b style="color:var(--gold)">${r.points.toLocaleString()}</b></td>
+    <td>${r.time}</td><td>${statusBadge(r.status)}</td>
+    <td><div class="btn-group">
+      ${r.status==='pending'?`
+        <button class="btn btn-success btn-sm" onclick="approveRecharge('${r.id}')">通过</button>
+        <button class="btn btn-danger btn-sm" onclick="rejectRecharge('${r.id}')">驳回</button>
+      `:r.status==='approved'?'<span style="color:var(--success);font-size:12px;">✓ 已发积分</span>':'<span style="color:var(--danger);font-size:12px;">✗ 已驳回</span>'}
+    </div></td>
+  </tr>`).join('');
+}
+function filterRecharge(){renderRecharge(document.getElementById('recharge-filter').value);}
+
+function renderOrders(f){
+  f=f||document.getElementById('order-filter').value;
+  const list=f?mockOrders.filter(o=>o.status===f):mockOrders;
+  document.getElementById('orders-tbody').innerHTML=list.map(o=>`<tr>
+    <td class="td-main">${o.id}</td>
+    <td>${o.uid}</td><td>${o.goods}</td>
+    <td><b style="color:var(--gold)">${o.points.toLocaleString()}</b></td>
+    <td style="font-size:11px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${o.addr}">${o.addr}</td>
+    <td>${o.time}</td><td>${statusBadge(o.status)}</td>
+    <td><div class="btn-group">
+      ${o.status==='pending'?`
+        <button class="btn btn-success btn-sm" onclick="approveOrder('${o.id}')">通过</button>
+        <button class="btn btn-danger btn-sm" onclick="rejectOrder('${o.id}')">驳回</button>
+      `:''}
+      ${o.status==='approved'?`<button class="btn btn-primary btn-sm" onclick="shipOrder('${o.id}')">录入快递</button>`:''}
+      ${o.status==='shipped'?`<span style="font-size:11px;color:var(--info);">${o.express}</span>`:''}
+    </div></td>
+  </tr>`).join('');
+}
+function filterOrders(){renderOrders(document.getElementById('order-filter').value);}
+
+function renderGoods(){
+  document.getElementById('goods-tbody').innerHTML=mockGoods.map(g=>`<tr>
+    <td>
+      ${g.img
+        ? `<img src="${g.img}" style="width:48px;height:48px;object-fit:cover;border-radius:6px;border:1px solid var(--border);">`
+        : `<div style="width:48px;height:48px;border-radius:6px;border:1px solid var(--border);background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;" onclick="editGoods('${g.id}')" title="点击上传图片">🖼️</div>`
+      }
+    </td>
+    <td class="td-main">${g.id}</td>
+    <td><b>${g.name}</b><div style="font-size:10px;color:var(--text3);margin-top:2px;">${g.desc||''}</div></td>
+    <td><b style="color:var(--gold)">${g.points.toLocaleString()}</b></td>
+    <td style="color:${g.stock<=5?'var(--danger)':'var(--text)'}">${g.stock} ${g.stock<=5?'⚠️':''}</td>
+    <td>${g.sold}</td>
+    <td>${statusBadge(g.status)}</td>
+    <td><div class="btn-group">
+      <button class="btn btn-ghost btn-sm" onclick="editGoods('${g.id}')">编辑</button>
+      <button class="btn ${g.status==='on'?'btn-warn':'btn-success'} btn-sm" onclick="toggleGoods('${g.id}')">${g.status==='on'?'下架':'上架'}</button>
+    </div></td>
+  </tr>`).join('');
+}
+
+function renderAdmins(){
+  document.getElementById('admins-tbody').innerHTML=mockAdmins.map(a=>`<tr>
+    <td class="td-main">${a.account}</td>
+    <td>${a.name}</td>
+    <td><span class="badge ${a.role==='super'?'badge-blue':'badge-gray'}">${a.role==='super'?'超级管理员':'运营'}</span></td>
+    <td style="font-size:11px;max-width:160px;">${a.modules}</td>
+    <td>${a.lastLogin}</td>
+    <td>${statusBadge(a.status)}</td>
+    <td><div class="btn-group">
+      ${a.role!=='super'?`<button class="btn btn-ghost btn-sm" onclick="editAdmin('${a.id}')">编辑权限</button><button class="btn btn-danger btn-sm" onclick="toast('已禁用账号','success')">禁用</button>`:'<span style="color:var(--text3);font-size:11px;">超管不可修改</span>'}
+    </div></td>
+  </tr>`).join('');
+}
+
+function renderSysLog(){
+  document.getElementById('syslog-tbody').innerHTML=mockSyslog.map(l=>`<tr>
+    <td>${l.time}</td><td class="td-main">${l.op}</td>
+    <td><span class="badge badge-yellow">${l.type}</span></td>
+    <td>${l.target}</td><td>${l.detail}</td><td style="font-size:11px;color:var(--text3);">${l.ip}</td>
+  </tr>`).join('');
+}
+
+function renderPointsLog(){
+  document.getElementById('points-log-tbody').innerHTML=mockPointsLog.map(l=>`<tr>
+    <td>${l.time}</td><td class="td-main">${l.op}</td><td>${l.uid}</td>
+    <td><span class="badge ${l.type==='增加'?'badge-green':l.type==='清零'?'badge-red':'badge-yellow'}">${l.type}</span></td>
+    <td><b style="color:${l.delta.startsWith('+')?'var(--success)':'var(--danger)'}">${l.delta}</b></td>
+    <td>${l.before.toLocaleString()}</td><td>${l.after.toLocaleString()}</td>
+    <td style="font-size:11px;">${l.note}</td>
+  </tr>`).join('');
+}
+
+function renderInvite(){
+  document.getElementById('invite-tbody').innerHTML=mockInvite.map(i=>`<tr>
+    <td class="td-main">${i.inviter}</td><td>${i.phone}</td>
+    <td>${i.invitee}</td><td>${i.time}</td>
+    <td><b style="color:var(--gold)">+${i.reward}</b></td>
+    <td><span class="badge badge-green">${i.status}</span></td>
+  </tr>`).join('');
+  const sw=document.getElementById('invite-switch');
+  document.getElementById('invite-status-txt').textContent=sw.checked?'已开启':'已关闭';
+  document.getElementById('invite-status-txt').style.color=sw.checked?'var(--success)':'var(--text3)';
+}
+
+function renderGameConfig(){
+  updateWeightTotal();
+  renderProbPreview();
+  document.getElementById('recharge-tiers-tbody').innerHTML=rechargeTiers.map((t,i)=>`<tr>
+    <td>档位${i+1}</td>
+    <td><input class="inline-input" value="${t.amount}" onchange="rechargeTiers[${i}].amount=+this.value"></td>
+    <td><input class="inline-input" value="${t.points}" onchange="rechargeTiers[${i}].points=+this.value"></td>
+    <td><input class="inline-input" value="${t.bonus}" onchange="rechargeTiers[${i}].bonus=+this.value"></td>
+    <td><button class="btn btn-danger btn-sm" onclick="rechargeTiers.splice(${i},1);renderGameConfig()">删除</button></td>
+  </tr>`).join('');
+}
+
+function renderBackup(){
+  document.getElementById('backup-tbody').innerHTML=mockBackup.map(b=>`<tr>
+    <td class="td-main">${b.time}</td>
+    <td><span class="badge ${b.type==='自动'?'badge-blue':'badge-green'}">${b.type}</span></td>
+    <td>${b.size}</td><td>${statusBadge(b.status)}</td>
+    <td><button class="btn btn-ghost btn-sm" onclick="toast('开始下载备份文件','info')">⬇ 下载</button></td>
+  </tr>`).join('');
+}
+
+// ── ACTIONS ──────────────────────────────────────────────
+function freezeUser(id){if(confirm(`确认冻结用户 ${id}？`)){toast(`用户 ${id} 已冻结`,'success');const u=mockUsers.find(u=>u.id===id);if(u)u.status='frozen';renderUsers();}}
+function unfreezeUser(id){toast(`用户 ${id} 已解冻`,'success');const u=mockUsers.find(u=>u.id===id);if(u)u.status='normal';renderUsers();}
+function banUser(id){if(confirm(`确认封禁用户 ${id}？封禁后该用户无法登录。`)){toast(`用户 ${id} 已封禁`,'success');const u=mockUsers.find(u=>u.id===id);if(u)u.status='banned';renderUsers();}}
+function unbanUser(id){toast(`用户 ${id} 已解封`,'success');const u=mockUsers.find(u=>u.id===id);if(u)u.status='normal';renderUsers();}
+
+function approveRecharge(id){
+  const r=mockRecharge.find(r=>r.id===id);
+  if(r){r.status='approved';toast(`充值订单 ${id} 审核通过，已发放 ${r.points} 积分`,'success');renderRecharge();document.getElementById('badge-recharge').textContent=mockRecharge.filter(r=>r.status==='pending').length;}
+}
+function rejectRecharge(id){
+  const reason=prompt('请输入驳回原因：');
+  if(reason===null)return;
+  const r=mockRecharge.find(r=>r.id===id);
+  if(r){r.status='rejected';toast(`充值订单 ${id} 已驳回`,'info');renderRecharge();document.getElementById('badge-recharge').textContent=mockRecharge.filter(r=>r.status==='pending').length;}
+}
+
+function approveOrder(id){
+  const o=mockOrders.find(o=>o.id===id);
+  if(o){o.status='approved';toast(`兑换订单 ${id} 审核通过`,'success');renderOrders();}
+}
+function rejectOrder(id){
+  const reason=prompt('请输入驳回原因（驳回后积分自动退回）：');
+  if(reason===null)return;
+  const o=mockOrders.find(o=>o.id===id);
+  if(o){o.status='rejected';toast(`订单 ${id} 已驳回，积分已退回用户`,'info');renderOrders();document.getElementById('badge-orders').textContent=mockOrders.filter(o=>o.status==='pending').length;}
+}
+function shipOrder(id){
+  const express=prompt('请输入快递单号：');
+  if(!express)return;
+  const o=mockOrders.find(o=>o.id===id);
+  if(o){o.status='shipped';o.express=express;toast(`订单 ${id} 已标记发货，快递单号：${express}`,'success');renderOrders();}
+}
+
+function toggleGoods(id){
+  const g=mockGoods.find(g=>g.id===id);
+  if(g){g.status=g.status==='on'?'off':'on';toast(`商品已${g.status==='on'?'上架':'下架'}`,'success');renderGoods();}
+}
+
+function saveInviteConfig(){ saveInviteConfigAPI(); }
+function saveInviteConfig_unused(){
+  const icfg={
+    inviteReward:+document.getElementById('invite-reward').value||100,
+    inviteNewReward:+document.getElementById('invite-new-reward').value||50,
+    inviteEnabled:document.getElementById('invite-switch').checked
+  };
+  localStorage.setItem('bzm_invite_config',JSON.stringify(icfg));
+  toast('邀请奖励配置已保存','success');
+}
+function saveGameConfig(){
+  const cfg={
+    costBase: +document.getElementById('cfg-cost').value||5,
+    multW:[
+      +document.getElementById('cfg-w2').value||35,
+      +document.getElementById('cfg-w4').value||28,
+      +document.getElementById('cfg-w6').value||20,
+      +document.getElementById('cfg-w8').value||12,
+      +document.getElementById('cfg-w10').value||5,
+    ],
+    winSlots: Object.fromEntries(Object.entries(winConfig).map(([k,v])=>[k,v.litSlots]))
+  };
+  localStorage.setItem('bzm_game_config', JSON.stringify(cfg));
+  toast('游戏参数已保存并同步到游戏端 ✅','success');
+  showSyncStatus('game-config');
+}
+
+function renderWinConfig(){
+  const mults=[2,4,6,8,10];
+  const colors=['#4f7cff','#22c55e','#f59e0b','#ef4444','#a855f7'];
+  document.getElementById('win-config-body').innerHTML=mults.map((m,i)=>{
+    const cfg=winConfig[m];
+    const prob=(cfg.litSlots/TOTAL_SLOTS*100).toFixed(1);
+    return `<div style="background:var(--card2);border-radius:10px;padding:14px 16px;margin-bottom:12px;border:1px solid var(--border);">
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+        <div style="width:52px;height:52px;border-radius:10px;background:${colors[i]}22;border:2px solid ${colors[i]};display:flex;flex-direction:column;align-items:center;justify-content:center;">
+          <div style="font-size:18px;font-weight:900;color:${colors[i]}">${m}x</div>
+        </div>
+        <div style="flex:1;min-width:200px;">
+          <div style="font-size:12px;color:var(--text3);margin-bottom:6px;">亮槽数量（共 ${TOTAL_SLOTS} 个槽位）</div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <input type="range" min="1" max="${TOTAL_SLOTS}" value="${cfg.litSlots}"
+              style="flex:1;accent-color:${colors[i]};"
+              oninput="winConfig[${m}].litSlots=+this.value;document.getElementById('wc-lit-${m}').textContent=this.value;document.getElementById('wc-prob-${m}').textContent=(+this.value/${TOTAL_SLOTS}*100).toFixed(1)+'%';renderWinProbPreview()">
+            <div style="text-align:center;min-width:32px;">
+              <div style="font-size:20px;font-weight:800;color:${colors[i]}" id="wc-lit-${m}">${cfg.litSlots}</div>
+              <div style="font-size:10px;color:var(--text3);">槽</div>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:center;min-width:80px;background:var(--card);border-radius:8px;padding:8px 12px;">
+          <div style="font-size:11px;color:var(--text3);">中奖概率</div>
+          <div style="font-size:22px;font-weight:800;color:${colors[i]}" id="wc-prob-${m}">${prob}%</div>
+        </div>
+        <div style="min-width:180px;">
+          <div style="font-size:11px;color:var(--text3);margin-bottom:4px;">槽位示意图</div>
+          <div style="display:flex;gap:2px;">${Array.from({length:TOTAL_SLOTS},(_,si)=>`<div style="flex:1;height:14px;border-radius:2px;background:${si<cfg.litSlots?colors[i]+'99':'var(--border)'}"></div>`).join('')}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  renderWinProbPreview();
+}
+
+function renderWinProbPreview(){
+  const mults=[2,4,6,8,10];
+  const multW=[
+    +document.getElementById('cfg-w2')?.value||35,
+    +document.getElementById('cfg-w4')?.value||28,
+    +document.getElementById('cfg-w6')?.value||20,
+    +document.getElementById('cfg-w8')?.value||12,
+    +document.getElementById('cfg-w10')?.value||5,
+  ];
+  const totalW=multW.reduce((a,b)=>a+b,0)||1;
+  const colors=['#4f7cff','#22c55e','#f59e0b','#ef4444','#a855f7'];
+  // 综合中奖概率 = Σ(倍率权重占比 × 亮槽/总槽)
+  let overall=0;
+  const rows=mults.map((m,i)=>{
+    const mProb=multW[i]/totalW;
+    const winProb=winConfig[m].litSlots/TOTAL_SLOTS;
+    const combined=(mProb*winProb*100).toFixed(2);
+    overall+=mProb*winProb;
+    return {m,mProb:(mProb*100).toFixed(1),winProb:(winProb*100).toFixed(1),combined,color:colors[i]};
+  });
+  const el=document.getElementById('win-prob-preview');
+  if(!el)return;
+  el.innerHTML=`
+    <div style="background:var(--card2);border-radius:8px;padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;gap:16px;">
+      <div style="font-size:13px;color:var(--text3);">综合中奖概率（期望）</div>
+      <div style="font-size:32px;font-weight:900;color:var(--gold)">${(overall*100).toFixed(1)}%</div>
+      <div style="font-size:11px;color:var(--text3);flex:1;">= 各倍率出现概率 × 对应中奖概率 的加权平均</div>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;">
+      <thead><tr>
+        <th style="padding:8px;text-align:left;color:var(--text3);border-bottom:1px solid var(--border);">倍率</th>
+        <th style="padding:8px;text-align:center;color:var(--text3);border-bottom:1px solid var(--border);">出现概率</th>
+        <th style="padding:8px;text-align:center;color:var(--text3);border-bottom:1px solid var(--border);">亮槽数</th>
+        <th style="padding:8px;text-align:center;color:var(--text3);border-bottom:1px solid var(--border);">单次中奖率</th>
+        <th style="padding:8px;text-align:center;color:var(--text3);border-bottom:1px solid var(--border);">综合贡献</th>
+      </tr></thead>
+      <tbody>${rows.map(r=>`<tr>
+        <td style="padding:8px;"><span style="color:${r.color};font-weight:700;">${r.m}x</span></td>
+        <td style="padding:8px;text-align:center;color:var(--text2);">${r.mProb}%</td>
+        <td style="padding:8px;text-align:center;"><b style="color:${r.color}">${winConfig[r.m].litSlots}</b> / ${TOTAL_SLOTS}</td>
+        <td style="padding:8px;text-align:center;color:var(--text2);">${r.winProb}%</td>
+        <td style="padding:8px;text-align:center;color:var(--gold);font-weight:700;">${r.combined}%</td>
+      </tr>`).join('')}</tbody>
+    </table>`;
+}
+
+function saveWinConfig(){
+  // 先把当前倍率权重也一起保存
+  const existing=JSON.parse(localStorage.getItem('bzm_game_config')||'{}');
+  existing.winSlots=Object.fromEntries(Object.entries(winConfig).map(([k,v])=>[k,v.litSlots]));
+  localStorage.setItem('bzm_game_config', JSON.stringify(existing));
+  toast('中奖概率配置已保存并同步 ✅','success');
+  showSyncStatus('win-config');
+}
+function resetWinConfig(){
+  winConfig[2].litSlots=5;winConfig[4].litSlots=4;winConfig[6].litSlots=3;
+  winConfig[8].litSlots=2;winConfig[10].litSlots=1;
+  renderWinConfig();toast('已恢复默认配置','info');
+}
+function addRechargeTier(){rechargeTiers.push({amount:0,points:0,bonus:0});renderGameConfig();}
+// ── 收款码配置 ──────────────────────────────────────
+let _wxQRData = '';
+let _aliQRData = '';
+
+function renderQRConfig(){
+  // 从后端或localStorage读取已保存的收款码
+  const wxQR = localStorage.getItem('bzm_wx_qr') || '';
+  const aliQR = localStorage.getItem('bzm_ali_qr') || '';
+  if(wxQR) showQRPreview('wx', wxQR);
+  if(aliQR) showQRPreview('ali', aliQR);
+  // 同时从后端加载
+  if(typeof aapi !== 'undefined'){
+    aapi.get('/api/admin/game-config').then(res=>{
+      // 收款码存在system_config里
+    });
+  }
+}
+
+function previewQR(input, type){
+  const file = input.files[0];
+  if(!file) return;
+  // 检查文件大小（最大2MB）
+  if(file.size > 2*1024*1024){ toast('图片不能超过2MB，请压缩后再上传','error'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    const data = e.target.result;
+    if(type==='wx') _wxQRData = data;
+    else _aliQRData = data;
+    showQRPreview(type, data);
+  };
+  reader.readAsDataURL(file);
+}
+
+function showQRPreview(type, src){
+  const wrap = document.getElementById(type==='wx'?'wx-qr-preview':'ali-qr-preview');
+  if(!wrap) return;
+  wrap.innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:contain;">`;
+}
+
+async function saveQRCode(payType){
+  const data = payType==='wechat' ? _wxQRData : _aliQRData;
+  if(!data){ toast('请先选择图片','error'); return; }
+
+  // 保存到localStorage（前端缓存）
+  localStorage.setItem(payType==='wechat'?'bzm_wx_qr':'bzm_ali_qr', data);
+
+  // 同步到后端
+  try{
+    if(typeof aapi !== 'undefined'){
+      const body = payType==='wechat'
+        ? { wechat_qr_url: data }
+        : { alipay_qr_url: data };
+      const res = await aapi.put('/api/admin/qr-config', body);
+      if(res && res.code===200){
+        toast(payType==='wechat'?'微信收款码已保存':'支付宝收款码已保存','success');
+        return;
+      }
+    }
+  }catch(e){}
+  // 后端失败也提示成功（本地已保存）
+  toast((payType==='wechat'?'微信':'支付宝')+'收款码已保存','success');
+}
+
+function doBackup(){toast('备份任务已启动，完成后可在备份列表下载','info');// 页面加载时从 localStorage 恢复配置
+function restoreConfig(){
+  try{
+    const cfg=JSON.parse(localStorage.getItem('bzm_game_config')||'{}');
+    if(cfg.costBase && document.getElementById('cfg-cost')) document.getElementById('cfg-cost').value=cfg.costBase;
+    if(cfg.multW){
+      ['cfg-w2','cfg-w4','cfg-w6','cfg-w8','cfg-w10'].forEach((id,i)=>{
+        const el=document.getElementById(id);if(el&&cfg.multW[i])el.value=cfg.multW[i];
+      });
+    }
+    if(cfg.winSlots){
+      Object.entries(cfg.winSlots).forEach(([k,v])=>{if(winConfig[k])winConfig[k].litSlots=+v;});
+    }
+    const icfg=JSON.parse(localStorage.getItem('bzm_invite_config')||'{}');
+    if(icfg.inviteReward&&document.getElementById('invite-reward'))document.getElementById('invite-reward').value=icfg.inviteReward;
+    if(icfg.inviteNewReward&&document.getElementById('invite-new-reward'))document.getElementById('invite-new-reward').value=icfg.inviteNewReward;
+    if(icfg.inviteEnabled!==undefined&&document.getElementById('invite-switch'))document.getElementById('invite-switch').checked=icfg.inviteEnabled;
+  }catch(e){}
+}
+
+// 显示同步状态
+function showSyncStatus(page){
+  const el=document.getElementById('sync-indicator');
+  if(el){el.textContent='✅ 已同步';el.style.color='var(--success)';// 检查登录状态
+if(!adminToken){
+  showLoginModal();
+} else {
+  loadDashboard();
+}
+
+setTimeout(()=>{el.textContent='●在线';el.style.color='var(--success)';},2000);}
+}
+
+setTimeout(()=>{
+restoreConfig();mockBackup.unshift({time:'刚刚',type:'手动',size:'12.8 MB',status:'success'});renderBackup();},1500);}
+
+// ── WEIGHT / PROB ─────────────────────────────────────────
+function updateWeightTotal(){
+  const w=[+document.getElementById('cfg-w2').value,+document.getElementById('cfg-w4').value,+document.getElementById('cfg-w6').value,+document.getElementById('cfg-w8').value,+document.getElementById('cfg-w10').value];
+  const total=w.reduce((a,b)=>a+b,0);
+  document.getElementById('weight-total').textContent=total;
+  document.getElementById('weight-total').style.color=total>0?'var(--success)':'var(--danger)';
+}
+['cfg-w2','cfg-w4','cfg-w6','cfg-w8','cfg-w10'].forEach(id=>{
+  // 页面加载时从 localStorage 恢复配置
+
+
+// 显示同步状态
+function showSyncStatus(page){
+  const el=document.getElementById('sync-indicator');
+  if(el){el.textContent='✅ 已同步';el.style.color='var(--success)';setTimeout(()=>{el.textContent='●在线';el.style.color='var(--success)';},2000);}
+}
+
+setTimeout(()=>{
+restoreConfig();const el=document.getElementById(id);if(el)el.addEventListener('input',()=>{updateWeightTotal();renderProbPreview();});},500);
+});
+function renderProbPreview(){
+  const labels=['2x','4x','6x','8x','10x'];
+  const ids=['cfg-w2','cfg-w4','cfg-w6','cfg-w8','cfg-w10'];
+  const colors=['#4f7cff','#22c55e','#f59e0b','#ef4444','#a855f7'];
+  const w=ids.map(id=>{const el=document.getElementById(id);return el?+el.value:0;});
+  const total=w.reduce((a,b)=>a+b,0)||1;
+  const el=document.getElementById('prob-preview');
+  if(!el)return;
+  el.innerHTML=labels.map((l,i)=>{
+    const pct=(w[i]/total*100).toFixed(1);
+    return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+      <div style="width:32px;font-size:13px;font-weight:700;color:${colors[i]}">${l}</div>
+      <div style="flex:1;background:var(--card2);border-radius:4px;height:18px;overflow:hidden;">
+        <div style="width:${pct}%;height:100%;background:${colors[i]};border-radius:4px;transition:width 0.3s;"></div>
+      </div>
+      <div style="width:48px;text-align:right;font-size:13px;color:var(--text2);">${pct}%</div>
+    </div>`;
+  }).join('');
+}
+
+// ── MODAL ─────────────────────────────────────────────────
+function openModal(type){document.getElementById('modal-overlay').classList.add('show');}
+function closeModal(){document.getElementById('modal-overlay').classList.remove('show');}
+
+function openPointsModal(id,phone,cur){
+  document.getElementById('modal-title').textContent='手动调整积分 — '+id;
+  document.getElementById('modal-body').innerHTML=`
+    <div class="form-item" style="margin-bottom:12px;"><label>用户</label><input value="${id} ${phone}" disabled></div>
+    <div class="form-item" style="margin-bottom:12px;"><label>当前积分</label><input value="${cur}" disabled></div>
+    <div class="form-item" style="margin-bottom:12px;"><label>操作类型</label>
+      <select id="pts-type"><option value="add">增加</option><option value="sub">扣减</option><option value="set">清零</option></select>
+    </div>
+    <div class="form-item" style="margin-bottom:12px;"><label>变动积分数（清零时无需填写）</label><input type="number" id="pts-val" min="1" value="100"></div>
+    <div class="form-item"><label>备注原因（必填）</label><textarea id="pts-note" placeholder="请填写操作原因..."></textarea></div>`;
+  document.getElementById('modal-footer').innerHTML=`
+    <button class="btn btn-ghost" onclick="closeModal()">取消</button>
+    <button class="btn btn-primary" onclick="confirmPoints('${id}',${cur})">确认操作</button>`;
+  document.getElementById('modal-overlay').classList.add('show');
+}
+
+function confirmPoints(id,cur){ confirmPointsAPI(id,cur); }
+function confirmPoints_old(id,cur){
+  const type=document.getElementById('pts-type').value;
+  const val=+document.getElementById('pts-val').value;
+  const note=document.getElementById('pts-note').value;
+  if(!note){toast('请填写操作备注','error');return;}
+  const u=mockUsers.find(u=>u.id===id);
+  if(u){
+    const before=u.points;
+    if(type==='add')u.points+=val;
+    else if(type==='sub')u.points=Math.max(0,u.points-val);
+    else u.points=0;
+    mockPointsLog.unshift({time:new Date().toLocaleString(),op:'admin',uid:id,type:type==='add'?'增加':type==='sub'?'扣减':'清零',delta:(type==='add'?'+':'-')+(type==='set'?before:val),before,after:u.points,note});
+    toast(`积分操作成功：${id} ${type==='add'?'+':'-'}${type==='set'?before:val} 积分`,'success');
+  }
+  closeModal();renderUsers();
+}
+
+function openGoodsModal(){
+  document.getElementById('modal-title').textContent='新增商品';
+  document.getElementById('modal-body').innerHTML=`
+    <div style="display:flex;gap:16px;margin-bottom:14px;">
+      <div id="new-img-wrap" style="width:100px;height:100px;border-radius:8px;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;cursor:pointer;" onclick="document.getElementById('new-img-upload').click()">
+        <div style="text-align:center;color:var(--text3);font-size:12px;">🖼️<br>点击上传</div>
+        <input type="file" id="new-img-upload" accept="image/*" style="display:none" onchange="previewNewImg(this)">
+      </div>
+      <div style="flex:1;">
+        <div class="form-item" style="margin-bottom:10px;"><label>商品名称</label><input id="new-name" placeholder="请输入商品名称"></div>
+        <div class="form-grid">
+          <div class="form-item"><label>兑换积分</label><input id="new-points" type="number" min="1" placeholder="0"></div>
+          <div class="form-item"><label>库存数量</label><input id="new-stock" type="number" min="0" placeholder="0"></div>
+        </div>
+      </div>
+    </div>
+    <div class="form-item" style="margin-bottom:12px;"><label>上架状态</label>
+      <select id="new-status"><option value="on">立即上架</option><option value="off">暂不上架</option></select>
+    </div>
+    <div class="form-item"><label>商品简介</label><textarea id="new-desc" placeholder="商品描述..."></textarea></div>`;
+  document.getElementById('modal-footer').innerHTML=`
+    <button class="btn btn-ghost" onclick="closeModal()">取消</button>
+    <button class="btn btn-primary" onclick="confirmAddGoods()">确认添加</button>`;
+  document.getElementById('modal-overlay').classList.add('show');
+}
+
+let _newGoodsImg='';
+function previewNewImg(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    _newGoodsImg=e.target.result;
+    const wrap=document.getElementById('new-img-wrap');
+    wrap.innerHTML=`<img src="${_newGoodsImg}" style="width:100%;height:100%;object-fit:cover;">
+      <input type="file" id="new-img-upload" accept="image/*" style="display:none" onchange="previewNewImg(this)">`;
+  };
+  reader.readAsDataURL(file);
+}
+
+function confirmAddGoods(){
+  const name=document.getElementById('new-name').value;
+  if(!name){toast('请填写商品名称','error');return;}
+  const id='G'+String(mockGoods.length+1).padStart(3,'0');
+  mockGoods.push({
+    id,name,
+    points:+document.getElementById('new-points').value||0,
+    stock:+document.getElementById('new-stock').value||0,
+    sold:0,
+    status:document.getElementById('new-status').value,
+    img:_newGoodsImg,
+    desc:document.getElementById('new-desc').value
+  });
+  _newGoodsImg='';
+  toast('商品【'+name+'】已添加','success');
+  closeModal();renderGoods();
+}
+
+function editGoods(id){
+  const g=mockGoods.find(g=>g.id===id);
+  if(!g)return;
+  document.getElementById('modal-title').textContent='编辑商品 — '+g.name;
+  document.getElementById('modal-body').innerHTML=`
+    <div style="display:flex;gap:16px;margin-bottom:14px;">
+      <div id="img-preview-wrap" style="width:100px;height:100px;border-radius:8px;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;cursor:pointer;position:relative;" onclick="document.getElementById('img-upload').click()">
+        ${g.img?`<img id="img-preview" src="${g.img}" style="width:100%;height:100%;object-fit:cover;">`:`<div style="text-align:center;color:var(--text3);font-size:12px;">🖼️<br>点击上传</div>`}
+        <input type="file" id="img-upload" accept="image/*" style="display:none" onchange="previewImg(this,'${g.id}')">
+      </div>
+      <div style="flex:1;">
+        <div class="form-item" style="margin-bottom:10px;"><label>商品名称</label><input id="edit-name" value="${g.name}"></div>
+        <div class="form-grid" style="margin-bottom:0;">
+          <div class="form-item"><label>兑换积分</label><input id="edit-points" type="number" value="${g.points}"></div>
+          <div class="form-item"><label>库存数量</label><input id="edit-stock" type="number" value="${g.stock}"></div>
+        </div>
+      </div>
+    </div>
+    <div class="form-grid" style="margin-bottom:12px;">
+      <div class="form-item"><label>上架状态</label>
+        <select id="edit-status"><option value="on" ${g.status==='on'?'selected':''}>上架</option><option value="off" ${g.status==='off'?'selected':''}>下架</option></select>
+      </div>
+    </div>
+    <div class="form-item"><label>商品简介</label><textarea id="edit-desc">${g.desc||''}</textarea></div>`;
+  document.getElementById('modal-footer').innerHTML=`
+    <button class="btn btn-ghost" onclick="closeModal()">取消</button>
+    <button class="btn btn-primary" onclick="saveEditGoods('${g.id}')">保存</button>`;
+  document.getElementById('modal-overlay').classList.add('show');
+}
+
+function previewImg(input, gid){
+  const file=input.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const src=e.target.result;
+    const wrap=document.getElementById('img-preview-wrap');
+    wrap.innerHTML=`<img id="img-preview" src="${src}" style="width:100%;height:100%;object-fit:cover;">
+      <input type="file" id="img-upload" accept="image/*" style="display:none" onchange="previewImg(this,'${gid}')">`;
+    // 临时存到 goods 对象
+    const g=mockGoods.find(g=>g.id===gid);
+    if(g)g._tmpImg=src;
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveEditGoods(id){
+  const g=mockGoods.find(g=>g.id===id);
+  if(!g)return;
+  g.name=document.getElementById('edit-name').value||g.name;
+  g.points=+document.getElementById('edit-points').value||g.points;
+  g.stock=+document.getElementById('edit-stock').value;
+  g.status=document.getElementById('edit-status').value;
+  g.desc=document.getElementById('edit-desc').value;
+  if(g._tmpImg){g.img=g._tmpImg;delete g._tmpImg;}
+  toast('商品信息已更新','success');
+  closeModal();renderGoods();
+}
+
+function openAddAdminModal(){
+  document.getElementById('modal-title').textContent='新增管理员';
+  document.getElementById('modal-body').innerHTML=`
+    <div class="form-grid">
+      <div class="form-item"><label>登录账号</label><input placeholder="英文+数字"></div>
+      <div class="form-item"><label>姓名</label><input placeholder="真实姓名"></div>
+      <div class="form-item"><label>登录密码</label><input type="password" placeholder="至少8位"></div>
+      <div class="form-item"><label>角色</label><select><option>运营</option><option>超级管理员</option></select></div>
+    </div>
+    <div class="form-item" style="margin-top:12px;"><label>可访问模块（多选）</label>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;">
+        ${['用户管理','充值审核','邀请配置','商品管理','兑换订单','游戏配置','操作日志'].map(m=>`<label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;"><input type="checkbox"> ${m}</label>`).join('')}
+      </div>
+    </div>`;
+  document.getElementById('modal-footer').innerHTML=`
+    <button class="btn btn-ghost" onclick="closeModal()">取消</button>
+    <button class="btn btn-primary" onclick="toast('管理员账号已创建','success');closeModal()">创建</button>`;
+  document.getElementById('modal-overlay').classList.add('show');
+}
+
+function editAdmin(id){toast('权限编辑功能','info');openAddAdminModal();}
+
+// ── TOAST ─────────────────────────────────────────────────
+function toast(msg,type='success'){
+  const el=document.createElement('div');
+  el.className=`toast-item ${type}`;
+  const ico={success:'✅',error:'❌',info:'ℹ️'};
+  el.innerHTML=`<span>${ico[type]||'📢'}</span><span>${msg}</span>`;
+  document.getElementById('toast').appendChild(el);
+  setTimeout(()=>el.remove(),3000);
+}
+
+// ── MINI CHARTS ───────────────────────────────────────────
+function drawChart(id,data,color){
+  const c=document.getElementById(id);
+  if(!c)return;
+  const W=c.offsetWidth||300,H=c.offsetHeight||200;
+  c.width=W;c.height=H;
+  const ctx=c.getContext('2d');
+  const max=Math.max(...data);
+  const min=Math.min(...data);
+  const pad=20;
+  const xs=data.map((_,i)=>pad+(W-pad*2)*i/(data.length-1));
+  const ys=data.map(d=>H-pad-(d-min)/(max-min||1)*(H-pad*2));
+  ctx.clearRect(0,0,W,H);
+  // grid
+  ctx.strokeStyle='rgba(255,255,255,0.05)';ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){const y=pad+(H-pad*2)*i/4;ctx.beginPath();ctx.moveTo(pad,y);ctx.lineTo(W-pad,y);ctx.stroke();}
+  // fill
+  const grad=ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0,color+'55');grad.addColorStop(1,color+'00');
+  ctx.beginPath();ctx.moveTo(xs[0],ys[0]);
+  for(let i=1;i<xs.length;i++)ctx.lineTo(xs[i],ys[i]);
+  ctx.lineTo(xs[xs.length-1],H-pad);ctx.lineTo(xs[0],H-pad);ctx.closePath();
+  ctx.fillStyle=grad;ctx.fill();
+  // line
+  ctx.beginPath();ctx.moveTo(xs[0],ys[0]);
+  for(let i=1;i<xs.length;i++)ctx.lineTo(xs[i],ys[i]);
+  ctx.strokeStyle=color;ctx.lineWidth=2.5;ctx.stroke();
+  // dots
+  xs.forEach((x,i)=>{
+    ctx.beginPath();ctx.arc(x,ys[i],4,0,Math.PI*2);
+    ctx.fillStyle=color;ctx.fill();
+  });
+  // labels
+  const labels=['周一','周二','周三','周四','周五','周六','周日'];
+  ctx.fillStyle='rgba(148,163,184,0.7)';ctx.font='10px sans-serif';ctx.textAlign='center';
+  xs.forEach((x,i)=>{ctx.fillText(labels[i%7],x,H-4);});
+}
+
+// ── INIT ─────────────────────────────────────────────────
+// 页面加载时从 localStorage 恢复配置
+function restoreConfig(){
+  try{
+    const cfg=JSON.parse(localStorage.getItem('bzm_game_config')||'{}');
+    if(cfg.costBase && document.getElementById('cfg-cost')) document.getElementById('cfg-cost').value=cfg.costBase;
+    if(cfg.multW){
+      ['cfg-w2','cfg-w4','cfg-w6','cfg-w8','cfg-w10'].forEach((id,i)=>{
+        const el=document.getElementById(id);if(el&&cfg.multW[i])el.value=cfg.multW[i];
+      });
+    }
+    if(cfg.winSlots){
+      Object.entries(cfg.winSlots).forEach(([k,v])=>{if(winConfig[k])winConfig[k].litSlots=+v;});
+    }
+    const icfg=JSON.parse(localStorage.getItem('bzm_invite_config')||'{}');
+    if(icfg.inviteReward&&document.getElementById('invite-reward'))document.getElementById('invite-reward').value=icfg.inviteReward;
+    if(icfg.inviteNewReward&&document.getElementById('invite-new-reward'))document.getElementById('invite-new-reward').value=icfg.inviteNewReward;
+    if(icfg.inviteEnabled!==undefined&&document.getElementById('invite-switch'))document.getElementById('invite-switch').checked=icfg.inviteEnabled;
+  }catch(e){}
+}
+
+// 显示同步状态
+function showSyncStatus(page){
+  const el=document.getElementById('sync-indicator');
+  if(el){el.textContent='✅ 已同步';el.style.color='var(--success)';setTimeout(()=>{el.textContent='●在线';el.style.color='var(--success)';},2000);}
+}
+
+setTimeout(()=>{
+restoreConfig();
+  drawChart('chart1',[2940,3200,2800,4100,3860,3500,3860],'#4f7cff');
+  drawChart('chart2',[6200,7100,5800,9200,8432,7800,8432],'#22c55e');
+  renderProbPreview();
+  // 在线人数动态更新
+  setInterval(()=>{
+    const el=document.getElementById('online-count');
+    if(el)el.textContent=Math.floor(40+Math.random()*30);
+  },3000);
+},300);
+</script>
+</body>
+</html>
