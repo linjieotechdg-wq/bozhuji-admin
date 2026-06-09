@@ -1974,6 +1974,9 @@ restoreConfig();
     if(el)el.textContent=Math.floor(40+Math.random()*30);
   },3000);
 },300);
+// 每9分钟ping后端防止Render休眠
+setInterval(()=>{ fetch(API_BASE+'/health').catch(()=>{}); }, 9*60*1000);
+setTimeout(()=>{ fetch(API_BASE+'/health').catch(()=>{}); }, 1000);
 </script>
 </body>
 </html>
