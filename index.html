@@ -487,48 +487,65 @@ canvas.mini-chart{width:100%;height:100%;}
 
     <!-- ⑧ 游戏参数（老虎机）-->
     <div class="page" id="page-game-config">
+
+      <!-- ① 符号出现权重 -->
       <div class="card">
         <div class="card-header">
-          <div class="card-title">🎰 老虎机符号权重配置</div>
+          <div class="card-title">🎰 水果机符号权重</div>
           <button class="btn btn-ghost btn-sm" onclick="resetSlotWeights()">↺ 恢复默认</button>
         </div>
         <div class="card-body">
-          <div style="font-size:12px;color:var(--text3);margin-bottom:16px;line-height:1.8;background:var(--card2);border-radius:8px;padding:10px 14px;">
-            <b style="color:var(--warn)">💡 说明：</b>权重越大该符号越容易出现，权重越小越难出现。<br>
-            降低高倍符号权重可以控制盈亏比，建议 7️⃣ 权重保持 1~3。
+          <div style="font-size:12px;color:var(--text3);margin-bottom:14px;line-height:1.8;background:var(--card2);border-radius:8px;padding:10px 14px;">
+            <b style="color:var(--warn)">💡 说明：</b>权重越大越容易出现，越小越难出现。降低高倍符号权重可控制平台盈亏比。<br>
+            <b>建议：</b>🎰(JP) 保持 1~2，BAR 保持 2~4，水果类 8~12
           </div>
-          <div id="slot-weights-body" style="display:grid;gap:10px;"></div>
-          <div id="slot-rtp-preview" style="margin-top:12px;background:var(--card2);border-radius:8px;padding:12px 14px;font-size:12px;color:var(--text3);"></div>
-          <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
-            <button class="btn btn-primary" onclick="saveSlotWeights()">💾 保存权重配置</button>
-            <button class="btn btn-ghost btn-sm" onclick="setSlotPreset('normal')">⚖️ 均衡模式</button>
-            <button class="btn btn-ghost btn-sm" onclick="setSlotPreset('tight')">🔒 控盈亏（大奖难出）</button>
-            <button class="btn btn-ghost btn-sm" onclick="setSlotPreset('loose')">🎉 活跃模式（小奖多）</button>
+          <div id="slot-weights-body" style="display:grid;gap:8px;"></div>
+          <div id="slot-rtp-preview" style="margin-top:12px;background:var(--card2);border-radius:8px;padding:10px 14px;font-size:12px;"></div>
+          <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="saveSlotWeights()">💾 保存</button>
+            <button class="btn btn-ghost btn-sm" onclick="setSlotPreset('normal')">⚖️ 均衡</button>
+            <button class="btn btn-ghost btn-sm" onclick="setSlotPreset('tight')">🔒 大奖难出</button>
+            <button class="btn btn-ghost btn-sm" onclick="setSlotPreset('loose')">🎉 小奖多</button>
           </div>
         </div>
       </div>
-      <!-- 钉板落点概率控制 -->
+
+      <!-- ② 中奖线赔率配置 -->
       <div class="card" style="margin-top:16px;">
         <div class="card-header">
-          <div class="card-title">🎯 钉板分层概率控制</div>
-          <button class="btn btn-ghost btn-sm" onclick="resetPegProbs()">↺ 恢复默认</button>
+          <div class="card-title">🏆 中奖赔率配置</div>
+          <button class="btn btn-ghost btn-sm" onclick="resetPayouts()">↺ 恢复默认</button>
         </div>
         <div class="card-body">
-          <div style="font-size:12px;color:var(--text3);margin-bottom:16px;line-height:1.8;background:var(--card2);border-radius:8px;padding:10px 14px;">
-            <b style="color:var(--warn)">💡 算法说明：</b>珠子经过12行钉子，每行以设定概率向右偏移。<br>
-            • <b>向右概率 &gt; 0.5</b>：整体偏右（趋向右侧低倍槽）<br>
-            • <b>向右概率 &lt; 0.5</b>：整体偏左（趋向左侧低倍槽）<br>
-            • <b>向右概率 = 0.5</b>：完全随机，均匀分布<br>
-            <span style="color:#ef4444;">⚠ 后几行影响最大，建议重点调整第8~12行</span>
+          <div style="font-size:12px;color:var(--text3);margin-bottom:14px;line-height:1.8;background:var(--card2);border-radius:8px;padding:10px 14px;">
+            <b style="color:var(--warn)">💡 说明：</b>三同中奖时，奖励 = 押注 × 赔率。两同中奖固定 ×1.5 倍押注。<br>
+            <b>JP大奖</b>（三个🎰）赔率固定 ×100，不可修改。
           </div>
-          <div id="peg-probs-body" style="display:grid;gap:10px;"></div>
-          <div id="peg-rtp-preview" style="margin-top:12px;background:var(--card2);border-radius:8px;padding:12px 14px;"></div>
-          <div style="margin-top:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-            <button class="btn btn-primary" onclick="savePegProbs()">💾 保存钉板概率</button>
-            <button class="btn btn-ghost btn-sm" onclick="setPegProbsPreset('favor_low')">📉 偏向小奖（均匀出奖）</button>
-            <button class="btn btn-ghost btn-sm" onclick="setPegProbsPreset('favor_mid')">⚖️ 均衡模式</button>
-            <button class="btn btn-ghost btn-sm" onclick="setPegProbsPreset('tight')">🔒 控盈亏（小奖多·大奖难）</button>
+          <div id="payout-body" style="display:grid;gap:8px;"></div>
+          <div style="margin-top:14px;">
+            <button class="btn btn-primary" onclick="savePayouts()">💾 保存赔率</button>
           </div>
+        </div>
+      </div>
+
+      <!-- ③ 基础参数 -->
+      <div class="card" style="margin-top:16px;">
+        <div class="card-header"><div class="card-title">⚙️ 基础游戏参数</div></div>
+        <div class="card-body">
+          <div class="form-item" style="margin-bottom:14px;">
+            <label>最低押注积分</label>
+            <input type="number" id="cfg-min-bet" value="5" min="1" style="width:120px;">
+          </div>
+          <div class="form-item" style="margin-bottom:14px;">
+            <label>JP累积比例（每注投入%进JP池）</label>
+            <input type="number" id="cfg-jp-rate" value="10" min="1" max="50" style="width:120px;">
+            <span style="font-size:12px;color:var(--text3);margin-left:8px;">%</span>
+          </div>
+          <div class="form-item" style="margin-bottom:16px;">
+            <label>初始JP池积分</label>
+            <input type="number" id="cfg-jp-init" value="10900" min="0" style="width:120px;">
+          </div>
+          <button class="btn btn-primary" onclick="saveBaseConfig()">💾 保存基础参数</button>
         </div>
       </div>
 
@@ -1230,78 +1247,186 @@ function renderInvite(){
 
 function renderGameConfig(){
   renderSlotWeights();
+  renderPayouts();
+  loadBaseConfig();
 }
 
-const SLOT_SYMBOLS  = ['7️⃣','💎','🍒','⭐','🍋','🔔','🍇','🍊'];
-const SLOT_PAYOUTS  = {'7️⃣':50,'💎':20,'🍒':10,'⭐':5,'🍋':3,'🔔':2,'🍇':2,'🍊':2};
-const SLOT_NAMES    = ['七星','钻石','樱桃','星星','柠檬','铃铛','葡萄','橙子'];
-let slotWeights     = [1,2,6,8,10,10,10,10];
+// ══ 水果机符号定义 ══════════════════════════════════════
+const FM_SYMS = [
+  {s:'🎰', n:'JP',   defaultPay:100, defaultW:1},
+  {s:'BAR', n:'BAR', defaultPay:30,  defaultW:3},
+  {s:'💰',  n:'元宝', defaultPay:16,  defaultW:4},
+  {s:'⭐',  n:'星星', defaultPay:10,  defaultW:7},
+  {s:'🔔',  n:'铃铛', defaultPay:10,  defaultW:6},
+  {s:'🍒',  n:'樱桃', defaultPay:6,   defaultW:8},
+  {s:'🍇',  n:'葡萄', defaultPay:6,   defaultW:9},
+  {s:'🍊',  n:'橙子', defaultPay:4,   defaultW:12},
+];
+const WEIGHT_COLORS = ['#ff4444','#ffd700','#ffd700','#ffffff','#ffffff','#ff9999','#cc99ff','#ff9966'];
+let slotWeights = FM_SYMS.map(s=>s.defaultW);
+let slotPayouts = FM_SYMS.map(s=>s.defaultPay);
 
+// ── 符号权重 ────────────────────────────────────────────
 function renderSlotWeights(){
   const saved = JSON.parse(localStorage.getItem('bzm_game_config')||'{}');
-  if(Array.isArray(saved.slotWeights)&&saved.slotWeights.length===8) slotWeights=[...saved.slotWeights];
+  if(Array.isArray(saved.slotWeights)&&saved.slotWeights.length===FM_SYMS.length)
+    slotWeights = [...saved.slotWeights];
   const container = document.getElementById('slot-weights-body');
   if(!container) return;
-  const colors=['#ff4444','#00ccff','#ff6688','#ffd700','#aadd00','#ff8800','#aa44ff','#ff6600'];
-  container.innerHTML='';
-  SLOT_SYMBOLS.forEach(function(sym,i){
+  container.innerHTML = '';
+  const total = slotWeights.reduce((a,b)=>a+b,0)||1;
+  FM_SYMS.forEach(function(sym,i){
     const w = slotWeights[i]||1;
-    const total = slotWeights.reduce(function(a,b){return a+b;},0)||1;
     const pct = (w/total*100).toFixed(1);
     const div = document.createElement('div');
-    div.style.cssText='background:var(--card2);border-radius:8px;padding:10px 14px;border:1px solid var(--border);display:flex;align-items:center;gap:12px;';
-    div.innerHTML = '<span style="font-size:22px;">'+sym+'</span>'
-      +'<div style="flex:1;">'
-      +'<div style="display:flex;justify-content:space-between;margin-bottom:4px;">'
-      +'<span style="font-size:12px;font-weight:700;color:'+colors[i]+';">'+SLOT_NAMES[i]+' &times;'+SLOT_PAYOUTS[sym]+'</span>'
-      +'<span style="font-size:12px;color:var(--text3);">'+pct+'%</span>'
-      +'</div>'
-      +'<div style="display:flex;align-items:center;gap:8px;">'
-      +'<input type="range" min="0" max="50" value="'+w+'" step="1" style="flex:1;accent-color:'+colors[i]+';" id="sw-range-'+i+'">'
-      +'<span id="sw-val-'+i+'" style="min-width:28px;text-align:right;font-size:14px;font-weight:800;color:'+colors[i]+';">'+w+'</span>'
-      +'</div></div>';
+    div.style.cssText='background:var(--card2);border-radius:8px;padding:10px 12px;border:1px solid var(--border);display:flex;align-items:center;gap:10px;';
+    div.innerHTML =
+      '<span style="font-size:20px;width:28px;text-align:center;">'+(sym.s==='BAR'?'<b style="font-size:13px;color:#ffd700;">BAR</b>':sym.s)+'</span>'+
+      '<div style="flex:1;">'+
+        '<div style="display:flex;justify-content:space-between;margin-bottom:4px;">'+
+          '<span style="font-size:12px;font-weight:700;color:'+WEIGHT_COLORS[i]+';">'+sym.n+'</span>'+
+          '<span style="font-size:11px;color:var(--text3);">出现概率 '+pct+'%</span>'+
+        '</div>'+
+        '<div style="display:flex;align-items:center;gap:8px;">'+
+          '<input type="range" min="0" max="30" value="'+w+'" step="1" style="flex:1;accent-color:'+WEIGHT_COLORS[i]+';" id="sw-r-'+i+'">'+
+          '<span id="sw-v-'+i+'" style="min-width:24px;text-align:right;font-size:14px;font-weight:800;color:'+WEIGHT_COLORS[i]+';">'+w+'</span>'+
+        '</div>'+
+      '</div>';
     const inp = div.querySelector('input');
-    inp.addEventListener('input', function(){ slotWeights[i]=+this.value; document.getElementById('sw-val-'+i).textContent=this.value; renderSlotRTP(); });
+    inp.addEventListener('input',function(){
+      slotWeights[i]=+this.value;
+      document.getElementById('sw-v-'+i).textContent=this.value;
+      renderRTP();
+    });
     container.appendChild(div);
   });
-  renderSlotRTP();
+  renderRTP();
 }
 
-function renderSlotRTP(){
-  const total = slotWeights.reduce(function(a,b){return a+b;},0)||1;
+function renderRTP(){
+  const total = slotWeights.reduce((a,b)=>a+b,0)||1;
   let rtp = 0;
-  SLOT_SYMBOLS.forEach(function(sym,i){
-    const p = slotWeights[i]/total;
-    rtp += p*p*p * SLOT_PAYOUTS[sym];
-    rtp += 3*p*p*(1-p) * 1.5;
+  FM_SYMS.forEach(function(sym,i){
+    if(sym.s==='🎰'){
+      const p = slotWeights[i]/total;
+      rtp += p*p*p*100; // JP三同×100
+    } else {
+      const p = slotWeights[i]/total;
+      rtp += p*p*p*slotPayouts[i];
+      rtp += 3*p*p*(1-p)*1.5;
+    }
   });
-  const rtpPct = (rtp*100).toFixed(1);
   const el = document.getElementById('slot-rtp-preview');
   if(!el) return;
+  const rtpPct = (rtp*100).toFixed(1);
   const color = rtp>0.95?'#ef4444':rtp>0.80?'#f59e0b':'#22c55e';
-  const label = rtp>0.95?'亏损风险':rtp>0.80?'均衡':rtp>0.60?'盈利':'强盈利';
-  el.innerHTML = '<b>理论RTP：</b><span style="font-size:16px;font-weight:900;color:'+color+';">'+rtpPct+'%</span>'
+  const label = rtp>0.95?'⚠️ 平台亏损风险':rtp>0.85?'⚖️ 均衡偏高':rtp>0.65?'✅ 正常盈利':'🔒 强盈利';
+  el.innerHTML = '<b style="color:var(--text)">📊 理论RTP（玩家回报率）：</b>'
+    +'<span style="font-size:16px;font-weight:900;color:'+color+';">'+rtpPct+'%</span>'
     +' <span style="font-size:11px;color:var(--text3);">'+label+'</span>';
 }
+
 function saveSlotWeights(){
   const cfg = JSON.parse(localStorage.getItem('bzm_game_config')||'{}');
   cfg.slotWeights = [...slotWeights];
   localStorage.setItem('bzm_game_config', JSON.stringify(cfg));
   aapi.put('/api/admin/game-config', {slot_weights:slotWeights})
-    .then(r=>{ if(r&&r.code===200) toast('权重已保存 ✅','success'); else toast('已保存到本地','info'); })
+    .then(r=>{ if(r&&r.code===200) toast('符号权重已保存 ✅','success'); else toast('已保存到本地','info'); })
     .catch(()=>toast('已保存到本地','info'));
 }
 
-function resetSlotWeights(){ slotWeights=[1,2,6,8,10,10,10,10]; renderSlotWeights(); toast('已恢复默认','info'); }
-function setSlotPreset(t){
-  if(t==='normal') slotWeights=[1,2,6,8,10,10,10,10];
-  if(t==='tight')  slotWeights=[1,1,4,6,12,12,12,12];
-  if(t==='loose')  slotWeights=[2,3,8,10,10,10,10,10];
-  renderSlotWeights(); toast('已应用预设，记得保存','info');
+function resetSlotWeights(){
+  slotWeights = FM_SYMS.map(s=>s.defaultW);
+  renderSlotWeights();
+  toast('已恢复默认权重','info');
 }
 
-// 兼容旧调用
-function saveGameConfig(){ saveSlotWeights(); }
+function setSlotPreset(t){
+  if(t==='normal')  slotWeights=[1,3,4,7,6,8,9,12];
+  if(t==='tight')   slotWeights=[1,2,3,5,5,6,7,10];
+  if(t==='loose')   slotWeights=[2,4,5,9,8,10,11,14];
+  renderSlotWeights();
+  toast('已应用预设，记得保存','info');
+}
+
+// ── 赔率配置 ────────────────────────────────────────────
+function renderPayouts(){
+  const saved = JSON.parse(localStorage.getItem('bzm_game_config')||'{}');
+  if(Array.isArray(saved.slotPayouts)&&saved.slotPayouts.length===FM_SYMS.length)
+    slotPayouts = [...saved.slotPayouts];
+  const container = document.getElementById('payout-body');
+  if(!container) return;
+  container.innerHTML = '';
+  FM_SYMS.forEach(function(sym,i){
+    const div = document.createElement('div');
+    div.style.cssText='background:var(--card2);border-radius:8px;padding:10px 12px;border:1px solid var(--border);display:flex;align-items:center;gap:10px;';
+    const isJP = sym.s==='🎰';
+    div.innerHTML =
+      '<span style="font-size:20px;width:28px;text-align:center;">'+(sym.s==='BAR'?'<b style="font-size:13px;color:#ffd700;">BAR</b>':sym.s)+'</span>'+
+      '<div style="flex:1;">'+
+        '<div style="font-size:12px;font-weight:700;color:'+WEIGHT_COLORS[i]+';margin-bottom:6px;">'+sym.n+' × 三同赔率</div>'+
+        '<div style="display:flex;align-items:center;gap:8px;">'+
+          '<span style="font-size:12px;color:var(--text3);">押注 ×</span>'+
+          '<input type="number" min="1" max="200" value="'+slotPayouts[i]+'" id="pay-'+i+'"'+(isJP?' disabled':'')+
+          ' style="width:80px;border:1px solid var(--border);border-radius:6px;padding:4px 8px;background:var(--card);color:var(--text);font-size:14px;font-weight:700;">'+
+          (isJP?'<span style="font-size:11px;color:var(--text3);">JP固定不可改</span>':'')+
+        '</div>'+
+      '</div>'+
+      '<div style="font-size:11px;color:var(--text3);text-align:right;">预期收益<br><b style="color:'+WEIGHT_COLORS[i]+';">+'+slotPayouts[i]+'积分/注</b></div>';
+    container.appendChild(div);
+  });
+}
+
+function savePayouts(){
+  FM_SYMS.forEach(function(_,i){
+    const el = document.getElementById('pay-'+i);
+    if(el&&!el.disabled) slotPayouts[i] = +el.value||FM_SYMS[i].defaultPay;
+  });
+  const cfg = JSON.parse(localStorage.getItem('bzm_game_config')||'{}');
+  cfg.slotPayouts = [...slotPayouts];
+  localStorage.setItem('bzm_game_config', JSON.stringify(cfg));
+  aapi.put('/api/admin/game-config', {slot_payouts:slotPayouts})
+    .then(r=>{ if(r&&r.code===200) toast('赔率已保存 ✅','success'); else toast('已保存到本地','info'); })
+    .catch(()=>toast('已保存到本地','info'));
+  renderRTP();
+}
+
+function resetPayouts(){
+  slotPayouts = FM_SYMS.map(s=>s.defaultPay);
+  renderPayouts();
+  toast('已恢复默认赔率','info');
+}
+
+// ── 基础参数 ────────────────────────────────────────────
+function loadBaseConfig(){
+  const cfg = JSON.parse(localStorage.getItem('bzm_game_config')||'{}');
+  const minBet = document.getElementById('cfg-min-bet');
+  const jpRate = document.getElementById('cfg-jp-rate');
+  const jpInit = document.getElementById('cfg-jp-init');
+  if(minBet) minBet.value = cfg.minBet||5;
+  if(jpRate) jpRate.value = cfg.jpRate||10;
+  if(jpInit) jpInit.value = cfg.jpInit||10900;
+}
+
+function saveBaseConfig(){
+  const cfg = JSON.parse(localStorage.getItem('bzm_game_config')||'{}');
+  cfg.minBet = +document.getElementById('cfg-min-bet').value||5;
+  cfg.jpRate = +document.getElementById('cfg-jp-rate').value||10;
+  cfg.jpInit = +document.getElementById('cfg-jp-init').value||10900;
+  localStorage.setItem('bzm_game_config', JSON.stringify(cfg));
+  aapi.put('/api/admin/game-config', {min_bet:cfg.minBet, jp_rate:cfg.jpRate, jp_init:cfg.jpInit})
+    .then(r=>{ if(r&&r.code===200) toast('基础参数已保存 ✅','success'); else toast('已保存到本地','info'); })
+    .catch(()=>toast('已保存到本地','info'));
+}
+
+function saveGameConfig(){ saveSlotWeights(); savePayouts(); saveBaseConfig(); }
+function updateWeightTotal(){}
+function renderProbPreview(){}
+function renderPegProbs(){}
+function savePegProbs(){}
+function resetPegProbs(){}
+function setPegProbsPreset(){}
+function updatePegProbsRTP(){}
 function updateWeightTotal(){}
 function renderProbPreview(){}
 function renderPegProbs(){}
