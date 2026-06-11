@@ -1330,9 +1330,10 @@ function saveSlotWeights(){
   const cfg = JSON.parse(localStorage.getItem('bzm_game_config')||'{}');
   cfg.slotWeights = [...slotWeights];
   localStorage.setItem('bzm_game_config', JSON.stringify(cfg));
-  aapi.put('/api/admin/game-config', {slot_weights:slotWeights})
-    .then(r=>{ if(r&&r.code===200) toast('符号权重已保存 ✅','success'); else toast('已保存到本地','info'); })
-    .catch(()=>toast('已保存到本地','info'));
+  // 写入后端数据库（游戏实际使用的权重）
+  aapi.put('/api/game/config', {slot_weights: slotWeights})
+    .then(r=>{ if(r&&r.code===200) toast('权重已保存到服务器 ✅','success'); else toast('服务器保存失败，仅本地生效','warn'); })
+    .catch(()=>toast('网络错误，仅本地生效','warn'));
 }
 
 function resetSlotWeights(){
@@ -1385,9 +1386,9 @@ function savePayouts(){
   const cfg = JSON.parse(localStorage.getItem('bzm_game_config')||'{}');
   cfg.slotPayouts = [...slotPayouts];
   localStorage.setItem('bzm_game_config', JSON.stringify(cfg));
-  aapi.put('/api/admin/game-config', {slot_payouts:slotPayouts})
-    .then(r=>{ if(r&&r.code===200) toast('赔率已保存 ✅','success'); else toast('已保存到本地','info'); })
-    .catch(()=>toast('已保存到本地','info'));
+  aapi.put('/api/game/config', {slot_payouts: slotPayouts})
+    .then(r=>{ if(r&&r.code===200) toast('赔率已保存到服务器 ✅','success'); else toast('服务器保存失败','warn'); })
+    .catch(()=>toast('网络错误','warn'));
   renderRTP();
 }
 
@@ -1414,7 +1415,7 @@ function saveBaseConfig(){
   cfg.jpRate = +document.getElementById('cfg-jp-rate').value||10;
   cfg.jpInit = +document.getElementById('cfg-jp-init').value||10900;
   localStorage.setItem('bzm_game_config', JSON.stringify(cfg));
-  aapi.put('/api/admin/game-config', {min_bet:cfg.minBet, jp_rate:cfg.jpRate, jp_init:cfg.jpInit})
+  aapi.put('/api/game/config', {min_bet:cfg.minBet, jp_rate:cfg.jpRate})
     .then(r=>{ if(r&&r.code===200) toast('基础参数已保存 ✅','success'); else toast('已保存到本地','info'); })
     .catch(()=>toast('已保存到本地','info'));
 }
